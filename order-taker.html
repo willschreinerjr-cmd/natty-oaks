@@ -194,26 +194,48 @@
       background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
     .ord-head h2{font-family:var(--serif);font-size:1rem;color:var(--gold2);
       font-weight:800;letter-spacing:.18em;text-transform:uppercase}
-    .ord-items{flex:1;overflow-y:auto;padding:10px}
-    .ord-item{background:var(--panel2);border-radius:11px;padding:11px 13px;margin-bottom:8px;
-      display:flex;flex-direction:column;gap:4px;border:1px solid var(--border);
-      box-shadow:0 2px 6px rgba(0,0,0,.3)}
-    .oi-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-    .oi-name{font-size:.94rem;font-weight:800;color:var(--text);flex:1;line-height:1.25}
-    .oi-seat{font-size:.72rem;color:var(--gold);font-weight:800;letter-spacing:.06em}
-    .oi-mods{display:flex;flex-direction:column;gap:1px;margin-top:1px}
-    .oi-mod-line{font-size:.78rem;color:var(--muted);line-height:1.55;
-      display:flex;gap:5px;align-items:baseline}
-    .oi-mod-line .mod-bullet{color:var(--border2);flex-shrink:0;font-size:.65rem;margin-top:1px}
-    .oi-mod-line .mod-key{color:var(--gold);font-weight:700;flex-shrink:0}
-    .oi-mod-line .mod-val{color:var(--text);opacity:.85}
-    .oi-mod-no .mod-bullet{color:#e85a45}
-    .oi-mod-no .mod-key{color:#e85a45}
-    .oi-mod-no .mod-val{color:#e85a45;font-weight:700;opacity:1}
-    .oi-price{font-size:.75rem;color:var(--muted);font-weight:600;margin-left:4px;align-self:center;white-space:nowrap}
-    .oi-notes{font-size:.78rem;color:var(--text);background:var(--panel3);
-      border-left:3px solid var(--gold);border-radius:5px;padding:5px 9px;margin-top:4px}
-    .oi-ctrl{display:flex;align-items:center;gap:6px;margin-top:5px}
+    .ord-items{flex:1;overflow-y:auto;padding:12px 10px}
+    /* ── order item card ── */
+    .ord-item{background:var(--panel2);border-radius:14px;padding:14px 14px 10px;
+      margin-bottom:10px;display:flex;flex-direction:column;gap:0;
+      border:1px solid var(--border);box-shadow:0 3px 10px rgba(0,0,0,.35);
+      position:relative}
+    .oi-num{position:absolute;top:-1px;left:-1px;background:var(--navy3);
+      color:#fff;font-size:.68rem;font-weight:900;letter-spacing:.05em;
+      padding:3px 8px 3px 10px;border-radius:14px 0 10px 0;line-height:1}
+    .oi-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;
+      padding-top:10px}
+    .oi-name{font-size:1.05rem;font-weight:900;color:#fff;flex:1;line-height:1.2;
+      letter-spacing:.01em}
+    .oi-qty-badge{background:var(--gold);color:#000;font-weight:900;font-size:.75rem;
+      border-radius:20px;padding:2px 9px;white-space:nowrap;align-self:center;flex-shrink:0}
+    .oi-seat{font-size:.72rem;color:var(--gold);font-weight:800;letter-spacing:.08em;
+      margin-top:3px}
+    /* ── mods ── */
+    .oi-mods{display:flex;flex-direction:column;gap:4px;margin-top:9px;
+      padding-top:9px;border-top:1px solid var(--border)}
+    .oi-mod-row{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+    .oi-mod-label{font-size:.7rem;color:var(--gold);font-weight:800;
+      letter-spacing:.07em;text-transform:uppercase;min-width:60px;flex-shrink:0}
+    .oi-mod-val{font-size:.82rem;color:var(--text);font-weight:600;opacity:.9}
+    /* NO pills */
+    .oi-no-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;align-items:center}
+    .oi-no-label{font-size:.7rem;color:#e85a45;font-weight:800;
+      letter-spacing:.07em;text-transform:uppercase;min-width:60px;flex-shrink:0}
+    .oi-no-pill{background:rgba(232,90,69,.18);border:1.5px solid #e85a45;
+      color:#ff7a63;font-size:.8rem;font-weight:800;border-radius:20px;
+      padding:2px 10px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+    .oi-no-pill::before{content:"✕";font-size:.7rem;font-weight:900}
+    /* notes */
+    .oi-notes{font-size:.85rem;color:#ffe47a;font-weight:600;
+      background:rgba(255,197,47,.1);border:1px solid rgba(255,197,47,.3);
+      border-radius:8px;padding:6px 11px;margin-top:8px;
+      display:flex;align-items:flex-start;gap:7px;line-height:1.4}
+    .oi-notes::before{content:"★";font-size:.85rem;color:var(--gold);flex-shrink:0;margin-top:1px}
+    /* controls */
+    .oi-ctrl{display:flex;align-items:center;gap:8px;margin-top:10px;
+      padding-top:8px;border-top:1px solid var(--border)}
+    .oi-price{font-size:.78rem;color:var(--muted);font-weight:600;margin-right:auto}
     .qty-btn{background:linear-gradient(180deg,var(--green2),var(--green));
       color:#fff;border:none;border-radius:7px;
       width:30px;height:30px;cursor:pointer;font-size:1.1rem;font-weight:700;
@@ -223,16 +245,16 @@
     .rm-btn{background:none;border:none;color:var(--red);cursor:pointer;
       font-size:1.25rem;margin-left:auto;padding:4px 8px;line-height:1;font-weight:700}
     .ord-foot{padding:12px 16px;border-top:1px solid var(--border);
-      background:linear-gradient(180deg,var(--bg2),#0d120c);
-      flex-shrink:0;display:flex;flex-direction:column;gap:9px}
+      background:linear-gradient(180deg,var(--bg2),var(--bg));
+      flex-shrink:0;display:flex;flex-direction:column;gap:10px}
     .ord-meta{display:flex;justify-content:space-between;align-items:center;
-      font-size:.78rem;color:var(--muted);letter-spacing:.04em}
-    .ord-meta .count{color:var(--gold2);font-weight:800}
+      font-size:.82rem;color:var(--muted);letter-spacing:.04em}
+    .ord-meta .count{color:var(--gold2);font-weight:900;font-size:1rem}
     .ord-meta .total{font-size:.85rem;color:var(--muted);font-weight:600}
     .ord-note-ta{width:100%;background:var(--panel2);border:1px solid var(--border);
       border-radius:9px;padding:9px 11px;font-size:.85rem;resize:none;height:50px;color:var(--text)}
     .ord-note-ta:focus{outline:none;border-color:var(--gold);
-      box-shadow:0 0 0 3px rgba(212,179,90,.15)}
+      box-shadow:0 0 0 3px rgba(255,197,47,.15)}
     .copy-btn{background:linear-gradient(180deg,#4ba0e0,#2f7fbe);
       color:#fff;border:none;border-radius:11px;
       padding:14px;font-size:.95rem;font-weight:800;cursor:pointer;letter-spacing:.06em;
@@ -1651,42 +1673,65 @@ function orderHTML(){
     <div class="empty-ord-ico">📝</div>
     Scratchpad is empty.<br>Tap any item to add it here as you take the order.
   </div>`;
-  return order.map(item=>`
+  return order.map((item,idx)=>{
+    // Parse mods into yes/no groups per key
+    const modRows = [];
+    if(item.mods){
+      item.mods.split(' | ').forEach(seg=>{
+        if(!seg.trim()) return;
+        const colon = seg.indexOf(':');
+        if(colon>0){
+          const key = seg.slice(0,colon).trim();
+          const vals = seg.slice(colon+1).trim();
+          // Split on ' | NO ' pattern within the value to separate yes/no
+          // vals might be like "Ranch, BBQ | NO Onion, NO Tomato"
+          const noParts = [];
+          const yesParts = [];
+          vals.split(', ').forEach(v=>{
+            if(v.startsWith('NO ')) noParts.push(v.slice(3));
+            else yesParts.push(v);
+          });
+          if(yesParts.length) modRows.push({key, vals:yesParts.join(', '), isNo:false});
+          if(noParts.length)  modRows.push({key, vals:noParts.join(', '), isNo:true});
+        } else if(seg.startsWith('NO ')){
+          modRows.push({key:'NO', vals:seg.slice(3), isNo:true});
+        } else {
+          modRows.push({key:'', vals:seg, isNo:false});
+        }
+      });
+    }
+    const yesRows = modRows.filter(r=>!r.isNo);
+    const noRows  = modRows.filter(r=> r.isNo);
+    return `
     <div class="ord-item" id="oi_${item.id}">
+      <div class="oi-num">#${idx+1}</div>
       <div class="oi-head">
-        <div class="oi-name">${item.qty>1?`<span style="color:var(--gold);margin-right:3px">${item.qty}×</span> `:''}
-          ${escapeHtml(item.name)}
-          ${item.price?`<span class="oi-price">$${Number(item.price).toFixed(2)}</span>`:''}
+        <div>
+          <div class="oi-name">${escapeHtml(item.name)}</div>
+          ${item.seat?`<div class="oi-seat">SEAT ${escapeHtml(item.seat)}</div>`:''}
         </div>
-        ${item.seat?`<div class="oi-seat">Seat ${escapeHtml(item.seat)}</div>`:''}
+        ${item.qty>1?`<div class="oi-qty-badge">${item.qty}×</div>`:''}
       </div>
-      ${item.mods?`<div class="oi-mods">${
-        item.mods.split(' | ').map(seg=>{
-          const isNo = seg.startsWith('NO ');
-          const colon = seg.indexOf(':');
-          let bullet,key,val;
-          if(isNo){
-            bullet='✕'; key=''; val=seg;
-          } else if(colon>0){
-            bullet='·'; key=seg.slice(0,colon+1); val=seg.slice(colon+1).trim();
-          } else {
-            bullet='·'; key=''; val=seg;
-          }
-          return `<div class="oi-mod-line${isNo?' oi-mod-no':''}">`+
-            `<span class="mod-bullet">${bullet}</span>`+
-            (key?`<span class="mod-key">${escapeHtml(key)}</span>`:'')+
-            `<span class="mod-val">${escapeHtml(val)}</span>`+
-            `</div>`;
-        }).join('')
-      }</div>`:''}
-      ${item.notes?`<div class="oi-notes">📝 ${escapeHtml(item.notes)}</div>`:''}
+      ${(yesRows.length||noRows.length)?`<div class="oi-mods">
+        ${yesRows.map(r=>`<div class="oi-mod-row">
+          ${r.key?`<span class="oi-mod-label">${escapeHtml(r.key)}</span>`:''}
+          <span class="oi-mod-val">${escapeHtml(r.vals)}</span>
+        </div>`).join('')}
+        ${noRows.length?`<div class="oi-no-row">
+          <span class="oi-no-label">NO</span>
+          ${noRows.map(r=>r.vals.split(', ').map(v=>`<span class="oi-no-pill">${escapeHtml(v)}</span>`).join('')).join('')}
+        </div>`:''}
+      </div>`:''}
+      ${item.notes?`<div class="oi-notes">${escapeHtml(item.notes)}</div>`:''}
       <div class="oi-ctrl">
+        ${item.price?`<span class="oi-price">$${Number(item.price).toFixed(2)}</span>`:''}
         <button class="qty-btn" onclick="chgItemQty('${item.id}',-1)">−</button>
         <span class="qty-disp">${item.qty}</span>
         <button class="qty-btn" onclick="chgItemQty('${item.id}',1)">+</button>
         <button class="rm-btn" onclick="rmItem('${item.id}')" title="Remove">✕</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function footerHTML(noteId){
@@ -1695,11 +1740,9 @@ function footerHTML(noteId){
   return `
     <div class="ord-foot">
       <div class="ord-meta">
-        <span><span class="count">${count}</span> item${count===1?'':'s'} on scratchpad</span>
+        <span><span class="count">${count}</span> item${count===1?'':'s'}</span>
         ${total?`<span class="total">~$${total.toFixed(2)}</span>`:''}
       </div>
-      <textarea class="ord-note-ta" id="${noteId}" placeholder="Notes for yourself (allergies, split, rush…)"></textarea>
-      <button class="copy-btn" id="copyBtn_${noteId}" onclick="copyOrderText('${noteId}')">📋 Copy Order Text</button>
       <button class="clear-big" onclick="clearOrder()">🗑 CLEAR ORDER</button>
     </div>`;
 }
