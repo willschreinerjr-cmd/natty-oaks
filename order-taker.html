@@ -1,0 +1,1862 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Natty Oaks — Scratchpad</title>
+  <!--
+    ════════════════════════════════════════════════════════════════
+    This app is a temporary digital server notebook for Natty Oaks.
+    It is NOT a POS. The goal is speed, searchability, and simple
+    order memory during a rush. The server uses this to remember
+    what was ordered, then enters it into the real POS.
+    ════════════════════════════════════════════════════════════════
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    :root{
+      /* ── Milwaukee Brewers theme ── navy + gold + cream ── */
+      --navy:#0a2351;--navy2:#12356b;--navy3:#1d4d9e;
+      --gold:#ffc52f;--gold2:#ffd45a;--golddark:#b6922e;
+      /* legacy aliases (so existing rules keep working) */
+      --green:var(--navy);--green2:var(--navy2);--green3:var(--navy3);
+      --bg:#080a10;--bg2:#0e1320;
+      --panel:#141a26;--panel2:#1c2436;--panel3:#283149;
+      --text:#f3f1e6;--muted:#9aa3b8;--border:#2a3450;--border2:#3f4d72;
+      --red:#d94c38;--blue:#3a8fd6;
+      --shadow:0 4px 18px rgba(0,0,0,.5);--shadow-gold:0 0 0 1px rgba(255,197,47,.22),0 4px 14px rgba(0,0,0,.45);
+      --r:14px;
+      --serif:'Cinzel','Playfair Display',Georgia,serif;
+      --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    }
+    html,body{height:100%}
+    body{font-family:var(--sans);
+      background:
+        radial-gradient(1200px 700px at 80% -10%,rgba(255,197,47,.07),transparent 60%),
+        radial-gradient(900px 600px at -10% 110%,rgba(29,77,158,.18),transparent 60%),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+      color:var(--text);height:100dvh;overflow:hidden;
+      display:flex;flex-direction:column;font-size:16px;letter-spacing:.01em}
+    button,input,textarea{font-family:inherit;color:inherit}
+
+    /* ── HEADER ── */
+    header{
+      background:
+        linear-gradient(180deg,#0d120c 0%,#141a12 100%);
+      color:#fff;padding:10px 14px;
+      display:flex;align-items:center;gap:10px;z-index:100;
+      border-bottom:1px solid rgba(212,179,90,.35);
+      box-shadow:0 4px 18px rgba(0,0,0,.6),inset 0 -1px 0 rgba(212,179,90,.08);
+      flex-shrink:0;position:relative}
+    header::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;
+      background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold2) 50%,var(--gold) 70%,transparent);
+      opacity:.55;pointer-events:none}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .logo-img{width:40px;height:40px;border-radius:50%;
+      background:#000;object-fit:cover;flex-shrink:0;
+      box-shadow:0 0 0 2px var(--gold),0 2px 8px rgba(0,0,0,.6)}
+    .logo-img.fallback{display:none}
+    .brand-text{display:flex;flex-direction:column;line-height:1;min-width:0}
+    .logo{font-family:var(--serif);font-size:1.15rem;font-weight:800;
+      color:var(--gold2);white-space:nowrap;letter-spacing:.08em;
+      text-shadow:0 1px 2px rgba(0,0,0,.6)}
+    .tagline{font-size:.62rem;color:var(--muted);letter-spacing:.25em;
+      text-transform:uppercase;margin-top:3px;font-weight:700}
+    .hdr-spacer{flex:1}
+    .hdr-fields{display:flex;gap:5px}
+    .hdr-inp{background:rgba(0,0,0,.45);border:1px solid rgba(212,179,90,.3);
+      color:#fff;border-radius:9px;padding:8px 10px;font-size:.85rem;width:78px;
+      text-align:center;font-weight:700;letter-spacing:.04em;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+    .hdr-inp:focus{outline:none;border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(212,179,90,.18),inset 0 1px 0 rgba(255,255,255,.04)}
+    .hdr-inp::placeholder{color:rgba(255,255,255,.45);font-weight:500}
+    .beg-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;
+      background:rgba(0,0,0,.45);padding:7px 12px;border-radius:20px;
+      font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+      border:1px solid rgba(212,179,90,.25);color:#d8d4c5;transition:.15s}
+    .beg-toggle .dot{width:12px;height:12px;border-radius:50%;background:#3a3a3a;
+      box-shadow:inset 0 0 0 1px rgba(0,0,0,.5);transition:.15s}
+    .beg-toggle.on{background:linear-gradient(180deg,var(--gold2),var(--gold));
+      color:#1a1408;border-color:var(--golddark);
+      box-shadow:0 0 0 1px rgba(212,179,90,.3),0 2px 8px rgba(212,179,90,.25)}
+    .beg-toggle.on .dot{background:#1b4a1b}
+    #viewOrderBtn{background:linear-gradient(180deg,var(--gold2),var(--gold));
+      color:#1a1408;border:none;border-radius:11px;
+      padding:9px 14px;font-size:.85rem;font-weight:900;cursor:pointer;
+      letter-spacing:.04em;
+      display:none;align-items:center;gap:7px;white-space:nowrap;
+      box-shadow:0 2px 10px rgba(212,179,90,.3),inset 0 1px 0 rgba(255,255,255,.3)}
+    .badge{background:var(--red);color:#fff;border-radius:50%;
+      width:22px;height:22px;display:inline-flex;align-items:center;
+      justify-content:center;font-size:.74rem;font-weight:900;
+      box-shadow:0 1px 4px rgba(0,0,0,.4)}
+
+    /* ── SEARCH BAR ── */
+    .search-wrap{background:linear-gradient(180deg,var(--panel) 0%,#141a12 100%);
+      padding:11px 14px;
+      border-bottom:1px solid var(--border);position:sticky;top:0;z-index:90;
+      display:flex;gap:10px;align-items:center;flex-shrink:0}
+    .search-inp{flex:1;background:var(--panel2);
+      border:2px solid var(--border);
+      color:var(--text);border-radius:14px;padding:14px 18px;font-size:1.05rem;
+      font-weight:600;outline:none;transition:.15s;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+    .search-inp:focus{border-color:var(--gold);background:var(--panel3);
+      box-shadow:0 0 0 3px rgba(212,179,90,.15),inset 0 1px 0 rgba(255,255,255,.03)}
+    .search-inp::placeholder{color:var(--muted);font-weight:500}
+    .search-clear{background:var(--panel3);border:1px solid var(--border2);color:var(--text);
+      width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.05rem;
+      display:none;flex-shrink:0;font-weight:700}
+    .search-clear.vis{display:block}
+
+    /* ── LAYOUT ── */
+    .body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+    /* ── MENU PANEL ── */
+    .menu{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+    .main-tabs{display:flex;background:linear-gradient(180deg,#141a12 0%,var(--panel) 100%);
+      gap:4px;padding:8px 10px 0;
+      border-bottom:1px solid var(--border)}
+    .mt-btn{flex:1;background:transparent;color:var(--muted);
+      border:none;border-radius:11px 11px 0 0;padding:13px 4px;font-size:.95rem;
+      font-weight:800;cursor:pointer;letter-spacing:.18em;text-transform:uppercase;
+      position:relative;transition:.15s}
+    .mt-btn:hover{color:#cfc8b3}
+    .mt-btn.active{background:var(--bg);color:var(--gold2)}
+    .mt-btn.active::after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;
+      height:3px;background:linear-gradient(90deg,transparent,var(--gold) 50%,transparent);
+      border-radius:2px}
+    .cat-bar{background:var(--panel);display:flex;overflow-x:auto;
+      gap:6px;padding:9px 10px;scrollbar-width:none;border-bottom:1px solid var(--border)}
+    .cat-bar::-webkit-scrollbar{display:none}
+    .cat-btn{background:var(--panel2);color:#bdbeae;
+      border:1px solid var(--border);border-radius:22px;padding:9px 16px;font-size:.82rem;
+      font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;
+      letter-spacing:.04em;transition:.15s}
+    .cat-btn:hover{border-color:var(--border2);color:#e5e2d4}
+    .cat-btn.active{background:linear-gradient(180deg,var(--gold2),var(--gold));
+      color:#1a1408;border-color:var(--golddark);font-weight:800;
+      box-shadow:0 2px 10px rgba(212,179,90,.25),inset 0 1px 0 rgba(255,255,255,.3)}
+    .items-wrap{flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch}
+    .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+    .item-btn{background:linear-gradient(180deg,var(--panel2) 0%,#1b231a 100%);
+      border:1px solid var(--border);border-radius:var(--r);
+      padding:14px 13px;cursor:pointer;text-align:left;
+      display:flex;flex-direction:column;gap:4px;min-height:82px;position:relative;
+      transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.03)}
+    .item-btn::before{content:"";position:absolute;inset:0;border-radius:var(--r);
+      background:linear-gradient(180deg,rgba(212,179,90,.0) 0%,rgba(212,179,90,0) 100%);
+      pointer-events:none;transition:.15s}
+    .item-btn:hover{border-color:var(--border2)}
+    .item-btn:active{transform:scale(.97);border-color:var(--gold);
+      background:linear-gradient(180deg,var(--panel3) 0%,#252e22 100%);
+      box-shadow:0 0 0 2px rgba(212,179,90,.18),0 2px 8px rgba(0,0,0,.4)}
+    .item-btn .iname{font-size:.98rem;font-weight:800;color:var(--text);line-height:1.2;
+      padding-right:24px;letter-spacing:.005em}
+    .item-btn .idesc{font-size:.74rem;color:var(--muted);line-height:1.35}
+    .item-btn .icat{font-size:.62rem;color:var(--gold);font-weight:800;
+      text-transform:uppercase;letter-spacing:.12em;margin-top:auto;padding-top:4px;
+      opacity:.85}
+    .item-btn.custom-item{border-style:dashed;border-color:var(--border2)}
+    .star{position:absolute;top:6px;right:6px;background:transparent;border:none;
+      cursor:pointer;font-size:1.15rem;color:#444;padding:4px;line-height:1;z-index:2;
+      transition:.15s;text-shadow:0 1px 2px rgba(0,0,0,.4)}
+    .star.on{color:var(--gold2);text-shadow:0 0 8px rgba(212,179,90,.5)}
+    .compact .item-btn{min-height:56px;padding:10px 12px}
+    .compact .item-btn .iname{font-size:.88rem}
+    .compact .item-btn .idesc,.compact .item-btn .icat{display:none}
+    .section-hdr{grid-column:1/-1;font-family:var(--serif);
+      font-size:.95rem;color:var(--gold2);
+      font-weight:800;text-transform:uppercase;letter-spacing:.2em;
+      padding:12px 4px 6px;border-bottom:1px solid var(--border);margin-bottom:4px;
+      display:flex;align-items:center;gap:10px}
+    .section-hdr::after{content:"";flex:1;height:1px;
+      background:linear-gradient(90deg,rgba(212,179,90,.4),transparent)}
+    .empty-search{grid-column:1/-1;padding:36px 20px;text-align:center;color:var(--muted);
+      font-style:italic}
+
+    /* ── ORDER SIDEBAR ── */
+    .order-sidebar{width:340px;background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+      border-left:1px solid var(--border);
+      display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;
+      box-shadow:inset 1px 0 0 rgba(212,179,90,.08)}
+    .ord-head{
+      background:linear-gradient(180deg,#0d120c 0%,#141a12 100%);
+      color:#fff;padding:13px 16px;
+      display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px;
+      border-bottom:1px solid rgba(212,179,90,.25);position:relative}
+    .ord-head::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+    .ord-head h2{font-family:var(--serif);font-size:1rem;color:var(--gold2);
+      font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+    .ord-items{flex:1;overflow-y:auto;padding:10px}
+    .ord-item{background:var(--panel2);border-radius:11px;padding:11px 13px;margin-bottom:8px;
+      display:flex;flex-direction:column;gap:4px;border:1px solid var(--border);
+      box-shadow:0 2px 6px rgba(0,0,0,.3)}
+    .oi-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .oi-name{font-size:.94rem;font-weight:800;color:var(--text);flex:1;line-height:1.25}
+    .oi-seat{font-size:.72rem;color:var(--gold);font-weight:800;letter-spacing:.06em}
+    .oi-mods{display:flex;flex-direction:column;gap:1px;margin-top:1px}
+    .oi-mod-line{font-size:.78rem;color:var(--muted);line-height:1.55;
+      display:flex;gap:5px;align-items:baseline}
+    .oi-mod-line .mod-bullet{color:var(--border2);flex-shrink:0;font-size:.65rem;margin-top:1px}
+    .oi-mod-line .mod-key{color:var(--gold);font-weight:700;flex-shrink:0}
+    .oi-mod-line .mod-val{color:var(--text);opacity:.85}
+    .oi-mod-no .mod-bullet{color:#e85a45}
+    .oi-mod-no .mod-key{color:#e85a45}
+    .oi-mod-no .mod-val{color:#e85a45;font-weight:700;opacity:1}
+    .oi-price{font-size:.75rem;color:var(--muted);font-weight:600;margin-left:4px;align-self:center;white-space:nowrap}
+    .oi-notes{font-size:.78rem;color:var(--text);background:var(--panel3);
+      border-left:3px solid var(--gold);border-radius:5px;padding:5px 9px;margin-top:4px}
+    .oi-ctrl{display:flex;align-items:center;gap:6px;margin-top:5px}
+    .qty-btn{background:linear-gradient(180deg,var(--green2),var(--green));
+      color:#fff;border:none;border-radius:7px;
+      width:30px;height:30px;cursor:pointer;font-size:1.1rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 1px 3px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1)}
+    .qty-disp{font-weight:800;font-size:.95rem;min-width:24px;text-align:center}
+    .rm-btn{background:none;border:none;color:var(--red);cursor:pointer;
+      font-size:1.25rem;margin-left:auto;padding:4px 8px;line-height:1;font-weight:700}
+    .ord-foot{padding:12px 16px;border-top:1px solid var(--border);
+      background:linear-gradient(180deg,var(--bg2),#0d120c);
+      flex-shrink:0;display:flex;flex-direction:column;gap:9px}
+    .ord-meta{display:flex;justify-content:space-between;align-items:center;
+      font-size:.78rem;color:var(--muted);letter-spacing:.04em}
+    .ord-meta .count{color:var(--gold2);font-weight:800}
+    .ord-meta .total{font-size:.85rem;color:var(--muted);font-weight:600}
+    .ord-note-ta{width:100%;background:var(--panel2);border:1px solid var(--border);
+      border-radius:9px;padding:9px 11px;font-size:.85rem;resize:none;height:50px;color:var(--text)}
+    .ord-note-ta:focus{outline:none;border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(212,179,90,.15)}
+    .copy-btn{background:linear-gradient(180deg,#4ba0e0,#2f7fbe);
+      color:#fff;border:none;border-radius:11px;
+      padding:14px;font-size:.95rem;font-weight:800;cursor:pointer;letter-spacing:.06em;
+      box-shadow:0 3px 10px rgba(58,143,214,.3),inset 0 1px 0 rgba(255,255,255,.18)}
+    .copy-btn:active{opacity:.85;transform:translateY(1px)}
+    .copy-btn.copied{background:linear-gradient(180deg,#3e8a3e,var(--green))}
+    .clear-big{background:linear-gradient(180deg,#e8604d,#c43a26);
+      color:#fff;border:none;border-radius:11px;
+      padding:14px;font-size:1rem;font-weight:900;cursor:pointer;letter-spacing:.1em;
+      text-transform:uppercase;
+      box-shadow:0 3px 10px rgba(217,76,56,.3),inset 0 1px 0 rgba(255,255,255,.18)}
+    .clear-big:active{opacity:.85;transform:translateY(1px)}
+    .empty-ord{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100%;color:var(--muted);font-size:.92rem;text-align:center;padding:24px;gap:10px;
+      font-style:italic}
+    .empty-ord-ico{font-size:3rem;opacity:.4}
+
+    /* ── MODAL ── */
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;
+      display:flex;align-items:flex-end;justify-content:center;
+      backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+    .modal-ov.hidden{display:none}
+    .modal{background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+      border-radius:20px 20px 0 0;width:100%;
+      max-width:600px;max-height:92dvh;display:flex;flex-direction:column;
+      box-shadow:0 -6px 40px rgba(0,0,0,.6),0 -1px 0 rgba(212,179,90,.3) inset}
+    .modal-handle{width:44px;height:4px;background:var(--gold);opacity:.4;
+      border-radius:2px;margin:10px auto 0}
+    .modal-hdr{padding:14px 20px 12px;border-bottom:1px solid var(--border);
+      position:relative}
+    .modal-hdr::after{content:"";position:absolute;left:20px;right:20px;bottom:-1px;height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4}
+    .modal-title{font-family:var(--serif);font-size:1.25rem;font-weight:800;
+      color:var(--gold2);letter-spacing:.04em}
+    .modal-sub{font-size:.78rem;color:var(--muted);font-weight:600;margin-top:3px;
+      letter-spacing:.06em}
+    .modal-body{flex:1;overflow-y:auto;padding:16px 20px}
+    .modal-desc{font-size:.88rem;color:#cdc9b8;line-height:1.5;margin-bottom:16px;
+      padding:10px 13px;background:var(--panel2);border-radius:9px;
+      border-left:3px solid var(--gold)}
+    .hint{font-size:.74rem;color:var(--gold2);margin-bottom:6px;font-style:italic;
+      letter-spacing:.04em}
+    .opt-sec{margin-bottom:18px}
+    .opt-lbl{font-size:.72rem;font-weight:800;color:var(--gold2);text-transform:uppercase;
+      letter-spacing:.18em;margin-bottom:9px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{background:var(--panel2);border:1.5px solid var(--border);border-radius:22px;
+      padding:9px 16px;font-size:.86rem;font-weight:600;cursor:pointer;color:var(--text);
+      transition:.12s}
+    .chip:hover{border-color:var(--border2)}
+    .chip.sel{background:linear-gradient(180deg,var(--navy3),var(--navy2));
+      color:#fff;border-color:var(--navy3);
+      box-shadow:0 2px 8px rgba(29,77,158,.4)}
+    .chip.no{background:linear-gradient(180deg,#e85a45,#b8351f);
+      color:#fff;border-color:#8e2613;font-weight:700;
+      box-shadow:0 2px 8px rgba(184,53,31,.45);
+      text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:rgba(255,255,255,.6)}
+    .chip.no::before{content:"✕  ";font-weight:900;text-decoration:none;display:inline-block;
+      margin-right:2px;text-decoration:none}
+    .chip.upsell{background:#352d1a;border-color:#5a4d2a;color:#e8cc88}
+    .chip.upsell.sel{background:linear-gradient(180deg,var(--gold2),var(--gold));
+      color:#1a1408;border-color:var(--golddark)}
+    .chip.note-chip{background:var(--panel3);border-color:var(--border);font-size:.8rem;padding:7px 13px}
+    .chip.note-chip:active{background:var(--gold);color:#111}
+    .chip.note-chip.sel{background:linear-gradient(180deg,var(--gold2),var(--gold));
+      color:#1a1408;border-color:var(--golddark);font-weight:700}
+    .chip:active{transform:scale(.95)}
+    .notes-ta{width:100%;background:var(--panel2);border:1px solid var(--border);
+      border-radius:10px;padding:11px 13px;font-size:.92rem;resize:none;height:72px;color:var(--text)}
+    .notes-ta:focus{outline:none;border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(212,179,90,.15)}
+    .seat-row{display:flex;gap:6px;flex-wrap:wrap}
+    .seat-chip{background:var(--panel2);border:2px solid var(--border);border-radius:10px;
+      padding:9px 17px;font-size:.9rem;font-weight:700;cursor:pointer;color:var(--text);min-width:48px;text-align:center}
+    .seat-chip.sel{background:linear-gradient(180deg,var(--green2),var(--green));
+      color:#fff;border-color:var(--gold)}
+    .qty-row{display:flex;align-items:center;gap:14px}
+    .modal-qty{font-weight:900;font-size:1.3rem;min-width:34px;text-align:center;
+      color:var(--gold2);font-family:var(--serif)}
+    .qty-btn-lg{width:42px;height:42px;font-size:1.35rem;border-radius:10px}
+    .modal-foot{padding:14px 20px;border-top:1px solid var(--border);
+      display:flex;gap:11px;flex-shrink:0;
+      background:linear-gradient(180deg,var(--panel),#0d120c)}
+    .cancel-btn{flex:1;background:var(--panel2);color:var(--text);border:1px solid var(--border);
+      border-radius:11px;padding:14px;font-size:.95rem;font-weight:600;cursor:pointer;
+      letter-spacing:.04em}
+    .add-btn{flex:2;background:linear-gradient(180deg,var(--green2),var(--green));
+      color:#fff;border:none;border-radius:11px;
+      padding:14px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:.06em;
+      box-shadow:0 3px 12px rgba(45,106,45,.4),inset 0 1px 0 rgba(255,255,255,.15)}
+    .add-btn:active{opacity:.9;transform:translateY(1px)}
+
+    /* ── BOTTOM SHEET (mobile) ── */
+    .sheet-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;display:none;
+      backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+    .sheet-ov.vis{display:block}
+    .sheet{position:fixed;bottom:0;left:0;right:0;z-index:151;
+      background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
+      border-radius:20px 20px 0 0;max-height:88dvh;display:flex;flex-direction:column;
+      box-shadow:0 -6px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(212,179,90,.3);
+      transform:translateY(100%);transition:transform .25s ease}
+    .sheet.vis{transform:translateY(0)}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);
+      background:linear-gradient(180deg,var(--green2),var(--green));color:#fff;
+      padding:13px 26px;border-radius:26px;
+      font-weight:700;font-size:.9rem;z-index:300;transition:transform .25s;
+      box-shadow:0 6px 24px rgba(0,0,0,.5),0 0 0 1px rgba(212,179,90,.3),inset 0 1px 0 rgba(255,255,255,.15);
+      letter-spacing:.04em}
+    .toast.vis{transform:translateX(-50%) translateY(0)}
+
+    /* ── SCROLLBARS ── */
+    .items-wrap::-webkit-scrollbar,.ord-items::-webkit-scrollbar,.modal-body::-webkit-scrollbar{width:8px}
+    .items-wrap::-webkit-scrollbar-thumb,.ord-items::-webkit-scrollbar-thumb,.modal-body::-webkit-scrollbar-thumb{
+      background:var(--border2);border-radius:4px}
+    .items-wrap::-webkit-scrollbar-track,.ord-items::-webkit-scrollbar-track,.modal-body::-webkit-scrollbar-track{background:transparent}
+
+    /* ── RESPONSIVE ── */
+    @media(min-width:880px){
+      .order-sidebar{display:flex}
+      #viewOrderBtn{display:none!important}
+    }
+    @media(max-width:879px){
+      .order-sidebar{display:none}
+      #viewOrderBtn{display:flex!important}
+    }
+    @media(max-width:520px){
+      .logo{font-size:1rem;letter-spacing:.06em}
+      .tagline{display:none}
+      .logo-img{width:36px;height:36px}
+      .hdr-inp{width:64px;padding:7px 6px;font-size:.78rem}
+      .beg-toggle{padding:6px 9px;font-size:.7rem}
+      .beg-toggle .lbl{display:none}
+      .items-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+    }
+
+    @keyframes flash{0%{transform:scale(1)}50%{transform:scale(1.18);background:var(--gold);color:#1a1408}100%{transform:scale(1)}}
+    .flashing{animation:flash .35s ease}
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <img class="logo-img" id="logoImg" src="logo.png" alt="Natty Oaks"
+      onerror="this.style.display='none'">
+    <div class="brand-text">
+      <div class="logo">Natty Oaks</div>
+      <div class="tagline">Small Bar · Big Attitude</div>
+    </div>
+  </div>
+  <div class="hdr-spacer"></div>
+  <div class="hdr-fields">
+    <input class="hdr-inp" id="serverName" type="text" placeholder="Server" maxlength="14">
+  </div>
+  <button class="beg-toggle" id="begToggle" onclick="toggleBeginner()" title="Beginner Mode">
+    <span class="dot"></span><span class="lbl">Beginner</span>
+  </button>
+  <button id="viewOrderBtn" onclick="toggleSheet()">
+    📋 <span class="badge" id="badge">0</span>
+  </button>
+</header>
+
+<!-- SEARCH -->
+<div class="search-wrap">
+  <input class="search-inp" id="searchInp" type="search"
+    placeholder="🔍 Search menu, drinks, sides, sauces…"
+    autocomplete="off" oninput="onSearch()">
+  <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+</div>
+
+<!-- BODY -->
+<div class="body">
+
+  <!-- MENU PANEL -->
+  <div class="menu" id="menuPanel">
+    <div class="main-tabs" id="mainTabs">
+      <button class="mt-btn active" id="tab-food" onclick="setSection('food')">🍔 FOOD</button>
+      <button class="mt-btn" id="tab-drinks" onclick="setSection('drinks')">🍺 DRINKS</button>
+    </div>
+    <div class="cat-bar" id="catBar"></div>
+    <div class="items-wrap">
+      <div class="items-grid" id="itemsGrid"></div>
+    </div>
+  </div>
+
+  <!-- ORDER SIDEBAR (desktop) -->
+  <div class="order-sidebar" id="sidebar"></div>
+
+</div>
+
+<!-- MOBILE ORDER SHEET -->
+<div class="sheet-ov" id="sheetOv" onclick="toggleSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="modal-handle"></div>
+  <div id="sheetInner" style="flex:1;display:flex;flex-direction:column;overflow:hidden"></div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="modal-ov hidden" id="modalOv">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hdr">
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-sub" id="mSub"></div>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-foot">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="add-btn" onclick="addToOrder()">+ Add to Scratchpad</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   This app is a temporary digital server notebook for Natty Oaks.
+   It is NOT a POS. The goal is speed, searchability, and simple
+   order memory during a rush.
+   ════════════════════════════════════════════════════════════════ */
+
+// ── SAUCES / DRESSINGS ──
+const WET = ['BBQ','Bourbon Glaze','Buffalo','Buffalo Ranch','Carolina Gold',
+  'Damn Hot 🌶','Garlic Parm','HF Honey Buffalo Garlic','Jerk','Mango Habanero 🔥',
+  'Teriyaki','Sweet Bourbon BBQ','Thai Chili'];
+const DRY = ['Caribbean Jerk','Cherry Chipotle Ale','Ghost Pepper 💀',
+  'Lemon Pepper','Mesquite',"Natalie's Secret",'Peri Peri'];
+const ALL_SAUCES = [...WET.map(s=>s+' (wet)'),...DRY.map(s=>s+' (dry)')];
+const WING_WET = WET.slice();
+const WING_DRY = DRY.slice();
+const DRESS = ['Ranch','1000 Island','Bleu Cheese','Caesar','Citrus Vinaigrette','Raspberry Vin.'];
+
+// Common modifier pickers
+const SIDE_MOD = {l:'Side',o:['Fries','Kettle Chips','Sweet Potato Fries (+$2)','Tots (+$2)','Onion Rings (+$2)'],m:false};
+const BUN_MOD  = {l:'Bun',o:['Regular','GF Bun (+$2)','Impossible Patty (+$3)'],m:false};
+const DRINK_SIZE = {l:'Pour',o:['Single','Double (+$3)','Tall','Shot'],m:false};
+// Serve style for spirits — single ice type, so we just ask neat/rocks or what mixer
+const ICE_MOD = {l:'Serve',o:[
+  'Neat','On the Rocks','Splash of Water','Water Back',
+  'Coke','Diet Coke','Sprite','Ginger Ale','Tonic','Club Soda','Sour',
+  'Cranberry','OJ','Pineapple','Grapefruit','Lemonade','Root Beer','Energy Drink'
+],m:false};
+
+// ══════════════════════════════════════════════════════════════
+// MENU DATA
+// Menu data should be updated from the official Natty Oaks food
+// and drink pages when items change.
+//   https://nattyoaks.com/milwaukee-county-natty-oaks-pub-and-eatery-food-menu
+//   https://nattyoaks.com/milwaukee-county-natty-oaks-pub-and-eatery-drink-menu
+// ══════════════════════════════════════════════════════════════
+const MENU = {
+  food:{
+    'Appetizers':[
+      {n:'Kettle Chips & Dip',p:9,d:'Housemade chips · onion dip or dill pickle',
+        tags:['chips','dip','app'],
+        mods:[{l:'Dip',o:['Onion Dip','Dill Pickle'],m:false}]},
+      {n:'Cheese Curds',p:12,d:'Battered white cheddar',
+        tags:['cheese','curds','fried','wisconsin','popular'],
+        pair:'Ranch or Buffalo Ranch',
+        mods:[{l:'Sauce',o:['Ranch','Buffalo Ranch'],m:false}]},
+      {n:'Reuben Rolls',p:11,d:'Corned beef, swiss, sauerkraut · thousand island',
+        tags:['reuben','corned beef','rolls']},
+      {n:'Buffalo Chicken Rolls',p:11,d:'Chicken, cream cheese, mozz, cheddar, buffalo',
+        tags:['buffalo','chicken','rolls','spicy'],
+        mods:[{l:'Sauce',o:['Ranch','Bleu Cheese'],m:false}]},
+      {n:'Mozzarella Sticks',p:10,d:'Housemade wonton, parmesan · marinara',
+        tags:['mozz','mozzarella','cheese','fried']},
+      {n:'Breaded Mushrooms',p:10,d:'½ lb deep fried',
+        tags:['mushroom','shroom','fried','veggie'],
+        mods:[{l:'Sauce',o:['Ranch','Bleu Cheese','Buffalo','BBQ','Honey Mustard'],m:false}]},
+      {n:'Crispy Pork Belly Bites',p:13,d:'Cherry chipotle ale rub · bourbon glaze',
+        tags:['pork','belly','bourbon']},
+      {n:'Spinach Artichoke Dip',p:null,d:'Creamy spinach, parmesan · pita chips',
+        tags:['spinach','artichoke','dip','veggie','gf'],
+        sizes:[{l:'Small',p:12},{l:'Large',p:18}],
+        mods:[{l:'GF Sub',o:['Pita Chips','Celery & Carrots','Tortilla Chips'],m:false}]},
+      {n:'Soft Pretzel',p:null,d:'Milwaukee Pretzel Co. · cheddar sauce & spicy beer mustard',
+        tags:['pretzel','milwaukee','beer mustard'],
+        sizes:[{l:'Solo',p:5.5},{l:'Trio',p:15}]},
+      {n:'Pizza Pan Nachos',p:null,d:'Chips, cheddar sauce, cheddar jack, pico, olives, sour cream',
+        tags:['nachos','chips','mexican'],
+        sizes:[{l:'Small',p:10},{l:'Large',p:17}],
+        mods:[{l:'Add Protein (+$3)',o:['None','Beef (+$3)','Chicken (+$3)'],m:false}]},
+      {n:'Philly Rolls',p:12.5,d:'Shaved ribeye, onions, peppers, mushrooms · cheddar sauce',
+        tags:['philly','steak','rolls']},
+      {n:'Chili Fries',p:15,d:'Fries, chili, red onions, shredded cheddar, sour cream',
+        tags:['chili','fries']},
+      {n:'Natty Fries',p:8,d:"Coated fries · Natalie's Secret Seasoning · ranch",
+        tags:['fries','natty','ranch']},
+    ],
+    'Wings':[
+      {n:'Wings',p:null,d:'Jumbo chicken wings · fried & grilled to perfection',
+        tags:['wings','chicken','popular','jumbo'],
+        pair:'Ranch or Bleu Cheese · Carrots & Celery',
+        sizes:[{l:'Half Dozen',p:12},{l:'Dozen',p:19.5}],
+        mods:[{l:'Wet Sauce',o:WING_WET,m:true,group:'wingflv',maxBySize:{'Half Dozen':1,'Dozen':2}},
+              {l:'Dry Rub',o:WING_DRY,m:true,group:'wingflv',maxBySize:{'Half Dozen':1,'Dozen':2}},
+              {l:'Dipping',o:['Ranch','Bleu Cheese','Both','None'],m:false},
+              {l:'Veggies',o:['Carrots & Celery','Celery Only','Carrots Only','None'],m:false}]},
+      {n:'Boneless Wings',p:10,d:'15 pieces · hearty boneless',
+        tags:['boneless','wings','chicken'],
+        mods:[{l:'Wet Sauce',o:WING_WET,m:true,group:'wingflv',max:2},
+              {l:'Dry Rub',o:WING_DRY,m:true,group:'wingflv',max:2},
+              {l:'Dipping',o:['Ranch','Bleu Cheese','Both','None'],m:false},
+              {l:'Veggies',o:['Carrots & Celery','Celery Only','Carrots Only','None'],m:false}]},
+    ],
+    'SmashCan Burgers':[
+      {n:'Original SmashCan™',p:11,d:'Two 3oz beef patties, american cheese',sides:true,
+        tags:['burger','smash','smashcan','cheeseburger','popular','original'],
+        pair:'Add bacon · upgrade to Tots or Sweet Potato Fries',
+        mods:[{l:'Extras',o:['Pub Sauce (+$1)',"Natalie's Rub on Fries (+$1)"],m:true},BUN_MOD]},
+      {n:'BLT SmashCan™',p:16,d:'Beef patties, cheddar, ½ lb bacon, lettuce, tomato, mayo',sides:true,
+        tags:['burger','smash','blt','bacon','popular'],mods:[BUN_MOD]},
+      {n:'Truffle Shuffle SmashCan™',p:14.5,d:'Beef, swiss, mushrooms, truffle horseradish aioli',sides:true,
+        tags:['burger','smash','truffle','mushroom'],mods:[BUN_MOD]},
+      {n:'Baja SmashCan™',p:14.5,d:'Beef, pepper jack, guacamole, jalapeños, chipotle mayo',sides:true,
+        tags:['burger','smash','baja','spicy','popular','mexican'],mods:[BUN_MOD]},
+      {n:'Outlaw SmashCan™',p:15,d:'Beef, bleu cheese, cheddar, bacon, onion rings, sweet bourbon BBQ',sides:true,
+        tags:['burger','smash','outlaw','bbq','bacon'],mods:[BUN_MOD]},
+      {n:'D.B.A.B. SmashCan™',p:18,d:'Beef, american, cheddar, bacon, cheese curds, cheddar sauce',sides:true,
+        tags:['burger','smash','dbab','bacon','cheese','loaded'],mods:[BUN_MOD]},
+    ],
+    'Sandwiches / Entrees':[
+      {n:'Philly Cheesesteak',p:15,d:'Shaved ribeye, sautéed onions, peppers, mushrooms, cheddar sauce',sides:true,
+        tags:['philly','steak','cheesesteak','sandwich','hoagie']},
+      {n:"Natalie's Grilled Cheese",p:16.5,d:'American, pepper jack, cheddar, bacon, jalapeño sauce on sourdough',sides:true,
+        tags:['grilled cheese','cheese','bacon','sandwich']},
+      {n:'Reuben',p:16,d:'Corned beef, sauerkraut, 1000 island, swiss on marble rye',sides:true,
+        tags:['reuben','corned beef','rye','popular']},
+      {n:'BLT Sandwich',p:17.5,d:'½ lb bacon, lettuce, tomato, mayo on sourdough',sides:true,
+        tags:['blt','bacon','sandwich','wrap'],
+        mods:[{l:'Style',o:['Sandwich','Wrap (+$1)'],m:false}]},
+      {n:'Southern Fried Henwich',p:17.5,d:'Buttermilk pickle brined chicken, lettuce, red onion, pickles, hot honey',sides:true,
+        tags:['chicken','fried','sandwich','hen','pickle','hot honey','spicy']},
+      {n:'Chipotle Turkey Sandwich',p:16,d:'Roasted turkey, guacamole, bacon, pepper jack, lettuce, tomato, chipotle mayo',sides:true,
+        tags:['turkey','chipotle','sandwich','wrap'],
+        mods:[{l:'Style',o:['Sandwich','Wrap (+$1)'],m:false}]},
+      {n:'Chicken Bacon Ranch Sandwich',p:17,d:'Grilled chicken, bacon, lettuce, tomato, onion, cheddar, ranch',sides:true,
+        tags:['chicken','bacon','ranch','sandwich','wrap','popular','cbr'],
+        mods:[{l:'Style',o:['Sandwich','Wrap (+$1)'],m:false}]},
+      {n:'Five Fingers & Fries',p:15.5,d:'Breaded chicken tender fritters & fries',
+        tags:['fingers','tenders','chicken','popular','fries'],
+        mods:[{l:'Sauce',o:['Ranch','BBQ','Buffalo','Honey Mustard','Bleu Cheese'],m:false}]},
+      {n:'Three Cheese Quesadilla',p:13,d:'Cheddar, pepper jack, mozzarella, jalapeño sauce · pico, sour cream',
+        tags:['quesadilla','cheese','mexican','vegetarian'],
+        mods:[{l:'Add Protein (+$3)',o:['None','Beef (+$3)','Chicken (+$3)'],m:false}]},
+    ],
+    'Flatbreads':[
+      {n:'Garlic Cheese Bread',p:11,d:'Roasted garlic oil, mozzarella, minced garlic · marinara',
+        tags:['garlic','bread','cheese','flatbread']},
+      {n:'Meat Lovers Flatbread',p:16,d:'Marinara, mozzarella, pepperoni, sausage, bacon',
+        tags:['meat','pizza','flatbread','pepperoni','sausage','bacon']},
+      {n:'Chicken Bacon Garlic Flatbread',p:16,d:'Garlic parmesan, mozzarella, grilled chicken, bacon, cherry tomatoes',
+        tags:['chicken','bacon','garlic','flatbread','pizza']},
+      {n:'Spinach Artichoke Flatbread',p:14,d:'Garlic parmesan, spinach, artichoke, mozzarella',
+        tags:['spinach','artichoke','flatbread','pizza','veggie'],
+        mods:[{l:'Add-on',o:['None','Chicken (+$3)'],m:false}]},
+      {n:'Margherita Flatbread',p:13,d:'Marinara, tomato, basil, mozzarella',
+        tags:['margherita','pizza','flatbread','veggie']},
+    ],
+    'Soup & Salad':[
+      {n:'Beer Cheese Soup',p:null,d:'House favorite',sizes:[{l:'Cup',p:6},{l:'Bowl',p:8}],tags:['soup','beer','cheese']},
+      {n:'Tomato Bisque',p:null,d:'',sizes:[{l:'Cup',p:6},{l:'Bowl',p:8}],tags:['soup','tomato','bisque']},
+      {n:'Chili',p:null,d:'',sizes:[{l:'Cup',p:6},{l:'Bowl',p:8}],tags:['chili','soup']},
+      {n:'Soup of the Day',p:null,d:"Ask kitchen for today's soup",sizes:[{l:'Cup',p:6},{l:'Bowl',p:8}],tags:['soup','sotd']},
+      {n:'Garden Salad',p:null,d:'Mixed greens, tomatoes, onions, cucumbers, mushrooms, croutons',
+        tags:['salad','garden','veggie','healthy'],
+        sizes:[{l:'Side',p:7},{l:'Entrée',p:11}],
+        mods:[{l:'Dressing',o:DRESS,m:false,req:true},
+              {l:'Add-ons',o:['Cheddar (+$1)','Chicken (+$3)','Steak (+$9)'],m:true}]},
+      {n:'Grilled Caesar',p:null,d:'Romaine, parmesan, croutons, grilled chicken, caesar',
+        tags:['caesar','salad','chicken','grilled'],
+        sizes:[{l:'Side',p:7},{l:'Entrée',p:14}]},
+    ],
+    'Fish Fry':[
+      {n:'Beer Battered Cod',p:16,d:'Friday fish fry · fries, coleslaw, rye, tartar',sides:true,
+        tags:['fish','cod','fry','friday','beer batter']},
+      {n:'Lake Perch',p:18,d:'Friday fish fry · fries, coleslaw, rye, tartar',sides:true,
+        tags:['fish','perch','fry','friday','lake']},
+      {n:'Walleye',p:20,d:'Friday fish fry · fries, coleslaw, rye, tartar',sides:true,
+        tags:['fish','walleye','fry','friday']},
+      {n:'Shrimp Basket',p:14,d:'Breaded shrimp, fries, cocktail sauce',
+        tags:['fish','shrimp','seafood','basket','fry']},
+    ],
+    'Kids':[
+      {n:'Kids Grilled Cheese',p:7,d:'With fries',tags:['kids','grilled cheese']},
+      {n:'3 Fingers',p:9,d:'With fries',tags:['kids','fingers','tenders','chicken']},
+      {n:'Smash Can Jr.',p:8,d:'With fries',tags:['kids','burger','smash']},
+      {n:"Kids Mac 'n Cheese",p:8,d:'With fries',tags:['kids','mac','cheese']},
+      {n:'Kids Cheese Quesadilla',p:7,d:'',tags:['kids','quesadilla','cheese']},
+    ],
+    'Sides':[
+      {n:'Fries',p:7,d:'',tags:['fries','side','popular']},
+      {n:'Sweet Potato Fries',p:7,d:'',tags:['sweet potato','fries','side']},
+      {n:'Onion Rings',p:8,d:'',tags:['onion rings','side']},
+      {n:'Tots',p:8,d:'',tags:['tots','tater','side','popular']},
+      {n:'Seasonal Vegetable',p:6,d:'',tags:['veggie','vegetable','side','healthy']},
+      {n:"Mac 'N Cheese (side)",p:7,d:'',tags:['mac','cheese','side']},
+      {n:'Coleslaw',p:4,d:'',tags:['slaw','coleslaw','side']},
+      {n:'Side Salad',p:5,d:'',tags:['salad','side','healthy']},
+    ],
+    'Brunch':[
+      {n:"Duke's American Meal",p:16,d:'3 eggs your way, 3 bacon, 2 sausage links, toast, country potatoes',
+        tags:['brunch','eggs','bacon','sausage','dukes','american','breakfast'],
+        mods:[{l:'Eggs',o:['Over Easy','Over Medium','Over Hard','Scrambled','Sunny Side','Poached'],m:false},
+              {l:'Toast',o:['White','Wheat','Rye'],m:false}]},
+      {n:"Natalie's Breakfast Croissanwich",p:15,d:'Fried egg, american, sausage patty, 2 bacon on a croissant bun',
+        tags:['brunch','breakfast','sandwich','egg','sausage','croissant','natalie']},
+      {n:'Pancakes',p:11,d:'3 pancakes + choice of 2 bacon or 2 sausage links',
+        tags:['brunch','pancakes','breakfast'],
+        mods:[{l:'Side',o:['2 Bacon','2 Sausage'],m:false}]},
+      {n:'Sausage Gravy & Croissant',p:13,d:'Housemade sausage gravy over a buttery croissant + country potatoes',
+        tags:['brunch','sausage','gravy','croissant','breakfast']},
+      {n:'B.L.T. Sandwich (Brunch)',p:17.5,d:'Bacon, lettuce, tomato, mayo on white toast w/ fries',
+        tags:['brunch','blt','bacon','sandwich','breakfast']},
+      {n:'Chicken & Waffles',p:18,d:'Country fried chicken breast, 2 liege waffles, hot honey drizzle',
+        tags:['brunch','chicken','waffles','hot honey','popular','breakfast']},
+      {n:'Big Ole Sausage Gravy Burger',p:20,d:'2 patties, provolone, sausage patty, sausage gravy on croissant + fries',
+        tags:['brunch','burger','smashcan','sausage','gravy','huge']},
+      {n:'Egg-Voc-A-Do Burger',p:16,d:'2 patties, cheddar, egg in a hole on texas toast, avocado + fries (open face)',
+        tags:['brunch','burger','smashcan','egg','avocado','open face']},
+      {n:'Peanut Butter & Jelly Pancakes',p:15,d:'3 pancakes + creamy PB & concord grape jelly',
+        tags:['brunch','pancakes','pb','peanut butter','jelly','sweet']},
+      {n:"S'Mores Pancakes",p:14,d:'3 chocolate chip + marshmallow pancakes, graham, toasted marshmallow, chocolate drizzle',
+        tags:['brunch','pancakes','smores','chocolate','marshmallow','sweet']},
+      {n:'PB Nutella & Banana Pancakes',p:14,d:'3 banana pancakes + creamy PB & Nutella',
+        tags:['brunch','pancakes','pb','nutella','banana','sweet']},
+      {n:"Natty's French Toast",p:14,d:'Texas toast, honey maple whip, cinnamon sugar, powdered sugar',
+        tags:['brunch','french toast','sweet','breakfast']},
+      {n:'Ultimate Ham & Swiss',p:15,d:'Hot ham, dijon, swiss, parmesan + bechamel sauce',
+        tags:['brunch','ham','swiss','sandwich']},
+      {n:'Breakfast Flatbread',p:15,d:'Sausage gravy, sunny egg, chives',
+        tags:['brunch','flatbread','sausage','egg']},
+      {n:'Mexican Eggbrunchure',p:14,d:'Chorizo, jalapeños, pepperjack, zesty jalapeño · choose Omelet / Skillet / Burrito',
+        tags:['brunch','eggbrunchure','mexican','chorizo','spicy'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      {n:"Meat Lover's Eggbrunchure",p:14,d:'Bacon, sausage, ham, cheddar · choose Omelet / Skillet / Burrito',
+        tags:['brunch','eggbrunchure','meat','bacon','sausage','ham'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      {n:"Veggie Lover's Eggbrunchure",p:14,d:'Mushrooms, onions, peppers, spinach · choose Omelet / Skillet / Burrito',
+        tags:['brunch','eggbrunchure','veggie','vegetarian','mushroom','spinach'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      {n:'Corned Beef Hash Eggbrunchure',p:14,d:'Corned beef, kraut, caramelized onions, hollandaise, eggs, chives',
+        tags:['brunch','eggbrunchure','corned beef','hash'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      {n:'Philly Hash Eggbrunchure',p:14,d:'Shaved ribeye, caramelized onions, peppers, cheese sauce',
+        tags:['brunch','eggbrunchure','philly','steak','hash'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      {n:'Buffalo Hash Eggbrunchure',p:14,d:'Buffalo boneless wings, hollandaise, bleu cheese crumbles',
+        tags:['brunch','eggbrunchure','buffalo','wings','spicy'],
+        mods:[{l:'Style',o:['Omelet','Skillet','Breakfast Burrito'],m:false,req:true}]},
+      // Brunch sides
+      {n:'Pancake (single)',p:3,d:'',tags:['brunch','side','pancake']},
+      {n:'Toast (side)',p:2,d:'White / Wheat / Rye',tags:['brunch','side','toast'],
+        mods:[{l:'Type',o:['White','Wheat','Rye'],m:false}]},
+      {n:'One Egg',p:3,d:'',tags:['brunch','side','egg'],
+        mods:[{l:'Style',o:['Over Easy','Over Medium','Over Hard','Scrambled','Sunny Side','Poached'],m:false}]},
+      {n:'2 Bacon Slices',p:3,d:'',tags:['brunch','side','bacon']},
+      {n:'2 Sausage Links',p:3,d:'',tags:['brunch','side','sausage']},
+      {n:'Potato Pancakes',p:2,d:'While supplies last',tags:['brunch','side','potato pancake']},
+      {n:'Hashbrowns',p:6,d:'',tags:['brunch','side','hashbrowns','potato']},
+      {n:'Country Potatoes',p:5,d:'',tags:['brunch','side','potato']},
+      {n:'Waffle (side)',p:6,d:'',tags:['brunch','side','waffle']},
+      // Brunch kids
+      {n:'Brunch Kids Pancakes',p:7,d:'Kids menu',tags:['brunch','kids','pancake']},
+      {n:'Brunch Kids Choc Chip Pancakes',p:8,d:'Kids menu',tags:['brunch','kids','pancake','chocolate']},
+      {n:'Cherry Cheesecake Long John',p:9,d:'Kids menu',tags:['brunch','kids','long john','donut','cherry','cheesecake']},
+      {n:'Brunch Kids Egg Plate',p:7,d:'',tags:['brunch','kids','egg']},
+      {n:'Brunch Kids Grilled Cheese',p:7,d:'',tags:['brunch','kids','grilled cheese']},
+      {n:"Kid's Waffle",p:7,d:'',tags:['brunch','kids','waffle']},
+      {n:'Peanut Butter & Jelly Waffle',p:8,d:'Kids menu',tags:['brunch','kids','waffle','pb','pbj']},
+    ],
+    'Specials':[
+      // ── MEXI MONDAY ──
+      {n:'Tacos (Mexi Monday)',p:2.5,d:'Min 2 · soft or hard · classic or vinegar slaw style',
+        tags:['special','mexi monday','monday','taco','mexican'],
+        mods:[{l:'Shell',o:['Soft','Hard'],m:false,req:true},
+              {l:'Protein',o:['Beef','Chicken','Chorizo'],m:false,req:true},
+              {l:'Style',o:['Lettuce/Cheese/Onion/Tomato','Vinegar Slaw & Cilantro'],m:false}]},
+      {n:'Mexi Monday Margarita',p:4,d:'Lime / Mango / Peach / Strawberry',
+        tags:['special','mexi monday','monday','margarita','marg','tequila'],
+        mods:[{l:'Flavor',o:['Lime','Mango','Peach','Strawberry'],m:false,req:true}]},
+      {n:'Taco Salad',p:13,d:'Lettuce, tomato, onion, cheese · zesty jalapeño · crunchy tortilla bowl',
+        tags:['special','mexi monday','monday','taco salad','salad','mexican'],
+        mods:[{l:'Protein',o:['Beef','Chicken','Chorizo'],m:false,req:true}]},
+      {n:'Burrito de Chile',p:15,d:'Flour tortilla · rice, beans, corn chips · house chili, cheese, sour cream',
+        tags:['special','mexi monday','monday','burrito','mexican'],
+        mods:[{l:'Protein',o:['Beef','Chicken','Chorizo'],m:false,req:true}]},
+      {n:'Tres Enchiladas',p:15,d:'3 tortillas · cheddar jack · enchilada sauce, verde, sour cream · rice & beans',
+        tags:['special','mexi monday','monday','enchilada','mexican'],
+        mods:[{l:'Protein',o:['Beef','Chicken','Chorizo'],m:false,req:true}]},
+      {n:"Natty's Crunchwrap",p:14,d:'Tostada + lettuce, tomato, cheese, zesty jalapeño in a grilled tortilla · rice & beans',
+        tags:['special','mexi monday','monday','crunchwrap','mexican'],
+        mods:[{l:'Protein',o:['Beef','Chicken','Chorizo'],m:false,req:true}]},
+      // ── TUESDAY BYO BURGER ──
+      {n:'BYO SmashCan Burger (Tuesday)',p:7,d:'2 patties + american · build it · extra patty +$1.50',
+        sides:true,tags:['special','tuesday','burger','byo','smashcan','build your own'],
+        mods:[{l:'Cheese (+$0.50 each)',o:['American','Bleu','Cheddar','Pepperjack','Swiss'],m:true},
+              {l:'Cheap Toppings ($0.25)',o:['Lettuce','Red Onion','Tomato'],m:true},
+              {l:'Mid Toppings ($0.50)',o:['Pickles','Mushrooms','Fried Onions','Jalapeños','Sauerkraut','Giardiniera','Ranch','Mayo','Salsa','BBQ','Chipotle Mayo','1000 Island'],m:true},
+              {l:'Premium Toppings ($1.50)',o:['Avocado','Bacon','Fried Egg','Shredded Chicken'],m:true},
+              {l:'Extra Patty (+$1.50)',o:['No','Yes (+$1.50)'],m:false}]},
+      // ── WEDNESDAY BYO BOWL ──
+      {n:'BYO Bowl (Wednesday)',p:null,d:'Tots or pasta base · build it',
+        tags:['special','wednesday','bowl','byo','build your own'],
+        mods:[{l:'Base',o:['Tater Tots','Pasta'],m:false,req:true},
+              {l:'Protein (+$2)',o:['None','Beef (+$2)','Fried Chicken (+$2)','Shredded Chicken (+$2)'],m:false},
+              {l:'Sauces ($0.50)',o:['Mac & Cheese','Marinara','Nacho Cheese'],m:true},
+              {l:'Cheeses ($0.50)',o:['American','Bleu','Shredded Cheddar','Shredded Mozz','Pepperjack'],m:true},
+              {l:'Toppings',o:['Bacon (+$1)','BBQ','Broccoli','Bleu Cheese Drs.','Buffalo','Chili (+$1.50)','Jalapeños (+$1)','Mushrooms (+$1)','Olives','Pepperoni (+$1)','Peppers','Ranch','Red Onion','Salsa','Sausage (+$1)','Sour Cream','Tomato','Zesty Sauce'],m:true}]},
+      // ── THURSDAY $1.25 WINGS ──
+      {n:'$1.25 Wings (Thursday)',p:1.25,d:'Per wing · w/ beverage purchase · min 6 per sauce · DINE IN ONLY',
+        tags:['special','thursday','wings','dollar wings','dine in'],
+        mods:[{l:'Wet Sauce',o:WING_WET,m:true,group:'wingflv',max:3},
+              {l:'Dry Rub',o:WING_DRY,m:true,group:'wingflv',max:3},
+              {l:'Dipping',o:['Ranch','Bleu Cheese','Both','None'],m:false},
+              {l:'Veggies',o:['Carrots & Celery','Celery Only','Carrots Only','None'],m:false}]},
+      // ── FRIDAY FISH FRY ──
+      {n:'Early Bird Fish Fry',p:14.5,d:'Friday 11a–5p · 2 pc beer battered cod + side',
+        tags:['special','friday','fish fry','early bird','cod']},
+      {n:'Big Kahuna Sandwich',p:18,d:'2 pc battered cod, american, lettuce, potato pancake, tartar on rye + fries',
+        tags:['special','friday','fish fry','sandwich','cod','big kahuna']},
+      {n:'Beer Battered Fish Fry',p:null,d:'Rye, butter, slaw, lemon, tartar, fries',
+        sizes:[{l:'2 piece',p:15.5},{l:'3 piece',p:18.5}],
+        tags:['special','friday','fish fry','cod','beer battered']},
+      {n:'Pan Fried Perch',p:18,d:'2 × 5oz perch · rye, butter, slaw, lemon, tartar, fries',
+        tags:['special','friday','fish fry','perch','pan fried']},
+      {n:'Baked Cod',p:20,d:'8oz baked cod loin · rye, butter, slaw, lemon, tartar, fries',
+        tags:['special','friday','fish fry','cod','baked','healthy']},
+      {n:'Seafood Sampler Platter',p:24,d:'3 grilled shrimp, 5oz perch, 3oz battered cod · rye, butter, slaw, fries',
+        tags:['special','friday','fish fry','sampler','platter','shrimp','perch','cod']},
+      {n:'Garlic Buttered Shrimp',p:12,d:'5 white wine garlic buttered shrimp · demi sec tomatoes, baguette',
+        tags:['special','friday','shrimp','garlic','seafood']},
+      {n:'$5 Premium Old Fashioned',p:5,d:"Henry Flach's Fighting 69th Irish Whiskey OF · sweet/sour/neat",
+        tags:['special','friday','old fashioned','of','premium','irish whiskey'],
+        mods:[{l:'Style',o:['Sweet','Sour','Neat'],m:false,req:true}]},
+      {n:'Salted Caramel Old Fashioned',p:5,d:'Friday OF special',
+        tags:['special','friday','old fashioned','of','salted caramel']},
+      {n:'Mango Jalapeño Old Fashioned',p:5,d:'Friday OF special',
+        tags:['special','friday','old fashioned','of','mango','jalapeno','spicy']},
+      {n:'Peanut Butter & Jelly Old Fashioned',p:5,d:'Friday OF special',
+        tags:['special','friday','old fashioned','of','pb','pbj','peanut butter']},
+      {n:'Limousin Rye Maple Old Fashioned',p:5,d:'Friday OF special',
+        tags:['special','friday','old fashioned','of','limousin','rye','maple']},
+      // ── SATURDAY BAKED & BREWS ──
+      {n:'Build a Baked Potato (Saturday)',p:2,d:'Build it · loaded toppings',
+        tags:['special','saturday','baked potato','potato','byo','build your own'],
+        mods:[{l:'Protein',o:['None','Taco Beef (+$2)','Fried Chicken (+$2)','Shredded Chicken (+$2)','Philly Meat (+$3.50)','Steak (+$5)','SmashCan Patty (+$3)','Corned Beef (+$3.50)'],m:false},
+              {l:'Cheeses ($0.50)',o:['American','Bleu','Shredded Cheddar','Shredded Mozz','Pepperjack'],m:true},
+              {l:'Toppings',o:['Bacon (+$1)','BBQ','Broccoli','Bleu Cheese Drs.','Buffalo','Chili (+$1.50)','Jalapeños (+$1)','Mushrooms (+$1)','Olives','Pepperoni (+$1)','Peppers','Ranch','Red Onion','Salsa','Sausage (+$1)','Sour Cream','Tomato','Zesty Sauce'],m:true}]},
+      // ── SATURDAY BYO FLATBREAD (1p–10p) ──
+      {n:'BYO Flatbread (Saturday)',p:null,d:'Saturday 1p–10p · build your own flatbread',
+        tags:['special','saturday','flatbread','byo','build your own','pizza'],custom:true},
+      // ── GENERIC ──
+      {n:'Daily Special',p:null,d:'Ask kitchen — changes daily',custom:true,tags:['special','daily']},
+      {n:'Soup of the Day',p:null,d:'Ask kitchen',sizes:[{l:'Cup',p:6},{l:'Bowl',p:8}],tags:['soup','special','sotd']},
+      {n:'Custom Item',p:null,d:'Free-text item — describe in notes',custom:true,tags:['custom','other']},
+    ],
+  },
+  drinks:{
+    'Beer / Seltzer / Canned':[
+      {n:'Miller Lite',p:null,d:'American Light Lager · 4.2%',tags:['beer','lager','light','popular','miller','can','bottle']},
+      {n:'Coors Light',p:null,d:'American Light Lager · 4.2%',tags:['beer','lager','light','popular','coors','can','bottle','silver bullet']},
+      {n:'Bud Light',p:null,d:'American Light Lager',tags:['beer','lager','light','bud','can','bottle']},
+      {n:'Budweiser',p:null,d:'American Lager',tags:['beer','lager','bud','can','bottle']},
+      {n:'Michelob Ultra',p:null,d:'Light Lager · 4.2%',tags:['beer','lager','light','michelob','ultra','low carb','can','bottle']},
+      {n:'Corona Extra',p:null,d:'Mexican Lager',tags:['beer','lager','mexican','corona','lime','bottle']},
+      {n:'Corona Premier',p:null,d:'Light Mexican Lager',tags:['beer','lager','light','mexican','corona','premier','bottle']},
+      {n:'Modelo Especial',p:null,d:'Mexican Lager',tags:['beer','lager','mexican','modelo','can','bottle']},
+      {n:'Pacifico',p:null,d:'Mexican Lager',tags:['beer','lager','mexican','pacifico','bottle']},
+      {n:'Heineken',p:null,d:'Dutch Lager',tags:['beer','lager','imported','heineken','bottle']},
+      {n:'Stella Artois',p:null,d:'Belgian Lager',tags:['beer','lager','belgian','stella','bottle']},
+      {n:'Guinness (Can)',p:null,d:'Irish Dry Stout',tags:['beer','stout','dark','guinness','irish','can']},
+      {n:'PBR',p:null,d:'Pabst Blue Ribbon',tags:['beer','lager','pbr','pabst','cheap','can']},
+      {n:'High Life',p:null,d:'Miller High Life',tags:['beer','lager','high life','miller','champagne of beers','bottle']},
+      {n:"Hamm's",p:3,d:'American Lager',tags:['beer','hamms','cheap','lager','can']},
+      {n:'Yuengling',p:null,d:'Amber Lager · 4.5%',tags:['beer','amber','lager','yuengling','bottle']},
+      {n:'Spotted Cow',p:null,d:'New Glarus Farmhouse Ale',tags:['beer','wisconsin','spotted cow','new glarus','farmhouse','ale','bottle']},
+      {n:'Two Hearted IPA',p:null,d:"Bell's Two Hearted · IPA",tags:['beer','ipa','bells','two hearted','hoppy','can']},
+      {n:'White Claw',p:null,d:'Hard Seltzer · 5%',tags:['seltzer','white claw','hard seltzer','gluten free','can'],
+        mods:[{l:'Flavor',o:['Black Cherry','Mango','Lime','Watermelon','Pineapple','Raspberry'],m:false}]},
+      {n:'Goodboys',p:null,d:'Hard Seltzer · Wisconsin local',tags:['seltzer','goodboys','hard seltzer','local','wisconsin','can'],
+        mods:[{l:'Flavor',o:['Black Cherry','Mango','Lime','Watermelon','Strawberry'],m:false}]},
+      {n:'Carbless',p:null,d:'Hard Seltzer · 0 carbs',tags:['seltzer','carbless','hard seltzer','low carb','zero carb','can'],
+        mods:[{l:'Flavor',o:['Black Cherry','Lime','Mango','Pineapple'],m:false}]},
+      {n:'Twisted Tea',p:null,d:'Hard Iced Tea',tags:['twisted tea','tea','hard tea','can']},
+      {n:'Cider (Angry Orchard)',p:null,d:'Hard Apple Cider',tags:['cider','angry orchard','apple','gluten free','bottle']},
+      {n:'N/A Beer',p:null,d:'Non-alcoholic — ask for options',tags:['na','non-alcoholic','beer','heineken 0.0','athletic']},
+      {n:'Custom Bottle/Can',p:null,d:'Specify in notes',custom:true,tags:['beer','seltzer','custom','other']},
+    ],
+    'Draft Beer':[
+      // ── 5 Standard + 4 Rotating Craft + 1 Premium Rotating Craft ──
+      // Rotators are unnamed — ASK what's on tap
+      {n:'Rotator 1',p:null,d:'Rotating craft tap · ask what’s on',
+        tags:['draft','rotator','rotating','craft']},
+      {n:'Rotator 2',p:null,d:'Rotating craft tap · ask what’s on',
+        tags:['draft','rotator','rotating','craft']},
+      {n:'Rotator 3',p:null,d:'Rotating craft tap · ask what’s on',
+        tags:['draft','rotator','rotating','craft']},
+      {n:'Rotator 4',p:null,d:'Rotating craft tap · ask what’s on',
+        tags:['draft','rotator','rotating','craft']},
+      // 5 Standards
+      {n:'Yuengling Traditional Lager (Draft)',p:null,d:'American Amber Lager · 4.5% · 12 IBU · Pottsville, PA',
+        tags:['draft','standard','yuengling','amber','lager','traditional']},
+      {n:'Guinness Draught',p:7,d:'Irish Dry Stout · 4.2% · 16oz pour · Dublin',
+        tags:['draft','standard','guinness','stout','dark','irish','nitro','dry stout']},
+      {n:"Hamm's (Draft)",p:3,d:"American Lager · 4.7% · 16oz · Milwaukee",
+        tags:['draft','standard','hamms','lager','cheap','milwaukee']},
+      {n:'Blue Moon Belgian White',p:null,d:'Witbier · 5.4% · 9 IBU · Denver',
+        tags:['draft','standard','wheat','blue moon','witbier','belgian','orange peel']},
+      {n:'Miller Lite (Draft)',p:null,d:'American Light Lager · 4.2% · 16oz · Milwaukee',
+        tags:['draft','standard','miller','light','lager','milwaukee']},
+      {n:'Coors Light (Draft)',p:null,d:'American Light Lager · 4.2% · 16oz · Golden, CO',
+        tags:['draft','standard','coors','light','lager','silver bullet']},
+    ],
+    'Whiskey':[
+      {n:'Rail Whiskey',p:null,d:'House rail',tags:['whiskey','rail','well','cheap'],mods:[DRINK_SIZE,ICE_MOD]},
+      // ── Bourbon / Whiskey list ──
+      {n:'1792',p:null,d:'Small Batch Bourbon',tags:['whiskey','bourbon','1792','small batch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Angel's Envy",p:null,d:'Port-finished Bourbon',tags:['whiskey','bourbon','angels envy','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bardstown Fusion',p:null,d:'Blended Bourbon',tags:['whiskey','bourbon','bardstown','fusion','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Basil Hayden',p:null,d:'Bourbon',tags:['whiskey','bourbon','basil hayden'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bib & Tucker 6 Year',p:null,d:'Small Batch Bourbon · 6yr',tags:['whiskey','bourbon','bib and tucker','small batch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bulleit Bourbon',p:null,d:'Bourbon',tags:['whiskey','bourbon','bulleit'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bulleit Rye',p:null,d:'Rye Whiskey',tags:['whiskey','rye','bulleit'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Canadian Club',p:null,d:'Canadian Whisky',tags:['whiskey','canadian club','cc','canadian'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Cardinal Bourbon',p:null,d:'Bourbon',tags:['whiskey','bourbon','cardinal'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Crown Royal',p:null,d:'Canadian Whisky',tags:['whiskey','crown','canadian','royal'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Crown Royal 18 Year',p:null,d:'Aged Canadian Whisky · 18yr',tags:['whiskey','crown','canadian','royal','18','premium','top shelf'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Crown Royal Apple',p:null,d:'Apple Canadian Whisky',tags:['whiskey','crown','apple','flavored','washington apple'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Crown Royal Peach',p:null,d:'Peach Canadian Whisky',tags:['whiskey','crown','peach','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Crown Royal Vanilla',p:null,d:'Vanilla Canadian Whisky',tags:['whiskey','crown','vanilla','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Dewar’s White Label',p:null,d:'Blended Scotch',tags:['whiskey','scotch','dewars','blended','white label'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Dough Ball Cookie Dough Whiskey',p:null,d:'Cookie Dough Flavored Whiskey',tags:['whiskey','dough ball','cookie dough','flavored','dessert'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Elijah Craig',p:null,d:'Small Batch Bourbon',tags:['whiskey','bourbon','elijah craig','small batch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Fireball',p:null,d:'Cinnamon Whisky',tags:['whiskey','fireball','cinnamon','shot'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Garrison Brothers Single Barrel',p:null,d:'Texas Single Barrel Bourbon',tags:['whiskey','bourbon','garrison brothers','single barrel','texas','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'High West American Prairie',p:null,d:'Blended Bourbon',tags:['whiskey','bourbon','high west','american prairie','blended'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'J Henry Bourbon',p:null,d:'Wisconsin Bourbon · J Henry & Sons',tags:['whiskey','bourbon','j henry','wisconsin','small batch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Jack Daniel's",p:null,d:'Tennessee Whiskey',tags:['whiskey','jack','tennessee','jd','daniels'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Jack Daniel's Apple",p:null,d:'Apple Tennessee Whiskey',tags:['whiskey','jack','apple','flavored','jd'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Jack Daniel's Fire",p:null,d:'Cinnamon Tennessee Whiskey',tags:['whiskey','jack','fire','cinnamon','jd'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Jack Daniel's Honey",p:null,d:'Honey Tennessee Whiskey',tags:['whiskey','jack','honey','sweet','jd'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Jameson',p:null,d:'Irish Whiskey',tags:['whiskey','irish','jameson'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Jefferson's",p:null,d:'Bourbon',tags:['whiskey','bourbon','jeffersons'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Jim Beam',p:null,d:'Bourbon',tags:['whiskey','bourbon','jim beam','beam'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Johnnie Walker Black',p:null,d:'Blended Scotch · 12yr',tags:['whiskey','scotch','johnnie walker','black label','jw'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Johnnie Walker Red',p:null,d:'Blended Scotch',tags:['whiskey','scotch','johnnie walker','red label','jw'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Keeper's Heart Bourbon",p:null,d:'Irish-American Bourbon',tags:['whiskey','bourbon','keepers heart','irish'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Knob Creek',p:null,d:'Bourbon',tags:['whiskey','bourbon','knob creek','small batch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Kurvball BBQ Whiskey',p:null,d:'Smoked BBQ Flavored Whiskey',tags:['whiskey','kurvball','bbq','flavored','smoke'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Larceny',p:null,d:'Wheated Bourbon',tags:['whiskey','bourbon','larceny','wheated'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Lexington',p:null,d:'Bourbon',tags:['whiskey','bourbon','lexington'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Limousin Rye',p:null,d:'Rye Whiskey',tags:['whiskey','rye','limousin'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Maker’s Mark',p:null,d:'Wheated Bourbon',tags:['whiskey','bourbon','makers','wheated'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'McKenna 10 Year',p:null,d:'Henry McKenna Single Barrel Bourbon · 10yr',tags:['whiskey','bourbon','mckenna','henry mckenna','single barrel','10','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Mount Royal Light',p:null,d:'Light Canadian Whisky',tags:['whiskey','canadian','mount royal','light'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'New Riff Bourbon',p:null,d:'Kentucky Bourbon',tags:['whiskey','bourbon','new riff','kentucky'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'New Riff Single Barrel',p:null,d:'Single Barrel Bourbon',tags:['whiskey','bourbon','new riff','single barrel','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Old Forester',p:null,d:'Bourbon',tags:['whiskey','bourbon','old forester','old forrester'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ole Smokey Mango Habanero',p:null,d:'Flavored Whiskey',tags:['whiskey','ole smokey','mango','habanero','spicy','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ole Smokey Mint Chip',p:null,d:'Flavored Whiskey',tags:['whiskey','ole smokey','mint chip','mint','dessert','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ole Smokey Peanut Butter',p:null,d:'Peanut Butter Whiskey',tags:['whiskey','ole smokey','peanut butter','pb','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ole Smokey Salted Caramel',p:null,d:'Flavored Whiskey',tags:['whiskey','ole smokey','salted caramel','sweet','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Penelope Toasted',p:null,d:'Toasted Bourbon',tags:['whiskey','bourbon','penelope','toasted'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Red Stag',p:null,d:'Black Cherry Bourbon',tags:['whiskey','bourbon','red stag','black cherry','flavored','jim beam'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Redbreast 12 Year',p:null,d:'Single Pot Still Irish Whiskey · 12yr',tags:['whiskey','irish','redbreast','12','single pot still','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Seagram's 7",p:null,d:'Blended Whisky',tags:['whiskey','seagrams','7','7&7','blended'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Skrewball Peanut Butter Whiskey',p:null,d:'PB Whiskey',tags:['whiskey','skrewball','peanut butter','pb','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Southern Comfort',p:null,d:'Whiskey Liqueur',tags:['whiskey','southern comfort','so co','liqueur','sweet'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Templeton 4 Year Rye',p:null,d:'Rye Whiskey · 4yr',tags:['whiskey','rye','templeton','4 year'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Town Branch Bourbon',p:null,d:'Bourbon',tags:['whiskey','bourbon','town branch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Tullamore Dew',p:null,d:'Irish Whiskey',tags:['whiskey','irish','tullamore','dew'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Whicked Pickle',p:null,d:'Pickle Flavored Whiskey',tags:['whiskey','whicked pickle','wicked pickle','pickle','flavored','shot'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'WhistlePig Piggyback 6 Year Bourbon',p:null,d:'Bourbon · 6yr',tags:['whiskey','bourbon','whistle pig','piggyback','6 year'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'WhistlePig Piggyback 6 Year Rye',p:null,d:'Rye Whiskey · 6yr',tags:['whiskey','rye','whistle pig','piggyback','6 year'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'WhistlePig 10 Year',p:null,d:'Straight Rye Whiskey · 10yr',tags:['whiskey','rye','whistle pig','10 year','premium','top shelf'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Wild Turkey',p:null,d:'Bourbon',tags:['whiskey','bourbon','wild turkey'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Woodford Reserve',p:null,d:'Bourbon',tags:['whiskey','bourbon','woodford','reserve'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Woodford Reserve Double Oaked',p:null,d:'Double Oaked Bourbon',tags:['whiskey','bourbon','woodford','double oaked','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Custom Whiskey',p:null,d:'Specify in notes',custom:true,tags:['whiskey','custom']},
+    ],
+    'Vodka':[
+      {n:'Rail Vodka',p:null,d:'House rail',tags:['vodka','rail','well','cheap'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'44 North',p:null,d:'Idaho Vodka',tags:['vodka','44 north','idaho'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Central Standard Door County Cherry',p:null,d:'Wisconsin Cherry Vodka',tags:['vodka','central standard','door county','cherry','wisconsin','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Deep Eddy Lemon',p:null,d:'Lemon Vodka',tags:['vodka','deep eddy','lemon','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Deep Eddy Lime',p:null,d:'Lime Vodka',tags:['vodka','deep eddy','lime','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Deep Eddy Ruby Red Grapefruit',p:null,d:'Grapefruit Vodka',tags:['vodka','deep eddy','ruby red','grapefruit','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Grey Goose',p:null,d:'French Vodka',tags:['vodka','grey goose','premium','french'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Hanson Meyer Habanero',p:null,d:'Habanero Vodka',tags:['vodka','hanson','meyer','habanero','spicy','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ketel One',p:null,d:'Dutch Vodka',tags:['vodka','ketel','dutch'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Ketel One Oranje',p:null,d:'Orange Vodka',tags:['vodka','ketel','oranje','orange','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff No. 21',p:null,d:'Vodka',tags:['vodka','smirnoff','no 21','21'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Blueberry',p:null,d:'Blueberry Vodka',tags:['vodka','smirnoff','blueberry','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Cherry',p:null,d:'Cherry Vodka',tags:['vodka','smirnoff','cherry','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Peach Lemonade',p:null,d:'Peach Lemonade Vodka',tags:['vodka','smirnoff','peach','lemonade','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Pink Lemonade',p:null,d:'Pink Lemonade Vodka',tags:['vodka','smirnoff','pink lemonade','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Raspberry',p:null,d:'Raspberry Vodka',tags:['vodka','smirnoff','raspberry','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Salted Caramel',p:null,d:'Salted Caramel Vodka',tags:['vodka','smirnoff','salted caramel','flavored','dessert'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Tamarind',p:null,d:'Tamarind Vodka',tags:['vodka','smirnoff','tamarind','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Smirnoff Vanilla',p:null,d:'Vanilla Vodka',tags:['vodka','smirnoff','vanilla','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Sweet Carolina Sweet Tea',p:null,d:'Sweet Tea Vodka',tags:['vodka','sweet carolina','sweet tea','tea','flavored','southern'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Tito's Handmade",p:null,d:'Handmade Vodka',tags:['vodka','titos','popular','gluten free','handmade'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Wheatley',p:null,d:'Craft Vodka · Buffalo Trace',tags:['vodka','wheatley','craft','buffalo trace'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Custom Vodka',p:null,d:'Specify in notes',custom:true,tags:['vodka','custom']},
+    ],
+    'Gin':[
+      {n:'Rail Gin',p:null,d:'House rail',tags:['gin','rail','well','cheap'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Aviation Gin',p:null,d:'American Gin',tags:['gin','aviation','american'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bombay Sapphire',p:null,d:'London Dry Gin',tags:['gin','bombay','sapphire','london dry'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Ha'Penny Rhubarb",p:null,d:'Rhubarb Gin',tags:['gin','hapenny','ha penny','rhubarb','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:"Hendrick's",p:null,d:'Cucumber & Rose Gin',tags:['gin','hendricks','cucumber','rose','scottish'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Tanqueray',p:null,d:'London Dry Gin',tags:['gin','tanqueray','london dry'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Custom Gin',p:null,d:'Specify in notes',custom:true,tags:['gin','custom']},
+    ],
+    'Rum':[
+      {n:'Rail Rum',p:null,d:'House rail',tags:['rum','rail','well','cheap'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Admiral Nelson',p:null,d:'Spiced Rum',tags:['rum','admiral nelson','spiced'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bacardi Silver',p:null,d:'White Rum',tags:['rum','bacardi','silver','white'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Bacardi Limon',p:null,d:'Lemon Rum',tags:['rum','bacardi','limon','lemon','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Calico Jack Cherry',p:null,d:'Cherry Rum',tags:['rum','calico jack','cherry','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Captain Morgan Spiced',p:null,d:'Spiced Rum',tags:['rum','captain','morgan','spiced'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Malibu',p:null,d:'Coconut Rum',tags:['rum','malibu','coconut','flavored'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Rumchata',p:null,d:'Cinnamon Cream Liqueur',tags:['rum','rumchata','cinnamon','cream','horchata','dessert'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Custom Rum',p:null,d:'Specify in notes',custom:true,tags:['rum','custom']},
+    ],
+    'Tequila':[
+      {n:'Rail Tequila',p:null,d:'House rail',tags:['tequila','rail','well','cheap'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Cazadores Blanco',p:null,d:'Blanco Tequila',tags:['tequila','cazadores','blanco','silver'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Cazadores Reposado',p:null,d:'Reposado Tequila',tags:['tequila','cazadores','reposado'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Don Julio Blanco',p:null,d:'Blanco Tequila · premium',tags:['tequila','don julio','blanco','silver','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Don Julio Reposado',p:null,d:'Reposado Tequila · premium',tags:['tequila','don julio','reposado','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Patron Silver',p:null,d:'Silver Tequila · premium',tags:['tequila','patron','silver','blanco','premium'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Teremana Blanco',p:null,d:'Blanco Tequila',tags:['tequila','teremana','blanco','silver','rock'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Teremana Reposado',p:null,d:'Reposado Tequila',tags:['tequila','teremana','reposado','rock'],mods:[DRINK_SIZE,ICE_MOD]},
+      {n:'Custom Tequila',p:null,d:'Specify in notes',custom:true,tags:['tequila','custom']},
+    ],
+    'Brandy':[
+      {n:'Rail Brandy',p:null,d:'House rail',tags:['brandy','rail','well','cheap']},
+      {n:'Drink Wisconsinbly Brandy',p:null,d:'Wisconsin Brandy',tags:['brandy','drink wisconsinbly','wisconsin','old fashioned']},
+      {n:'Dancing Goat Brandy',p:null,d:'Wisconsin Craft Brandy',tags:['brandy','dancing goat','wisconsin','craft']},
+      {n:'Korbel Brandy',p:null,d:'Wisconsin staple',tags:['brandy','korbel','old fashioned','wisconsin']},
+      {n:'Custom Brandy',p:null,d:'Specify in notes',custom:true,tags:['brandy','custom']},
+    ],
+    'Cordials / Liqueurs':[
+      {n:'Apple Pucker',p:null,d:'Sour Apple Schnapps',tags:['liqueur','pucker','sour apple','apple','schnapps']},
+      {n:"Bailey's Irish Cream",p:null,d:'Irish Cream',tags:['liqueur','baileys','cream','irish']},
+      {n:'Black Haus',p:null,d:'Blackberry Schnapps',tags:['liqueur','black haus','blackberry','schnapps']},
+      {n:'Buffalo Trace Bourbon Cream',p:null,d:'Bourbon Cream Liqueur',tags:['liqueur','buffalo trace','bourbon cream','cream','bourbon']},
+      {n:'Butterscotch Schnapps',p:null,d:'Butterscotch Liqueur',tags:['liqueur','butterscotch','schnapps']},
+      {n:'Crème de Banana',p:null,d:'Banana Liqueur',tags:['liqueur','creme de banana','banana']},
+      {n:'Crème de Cocoa',p:null,d:'Chocolate Liqueur',tags:['liqueur','creme de cocoa','cacao','chocolate','grasshopper']},
+      {n:'DiSaronno Amaretto',p:null,d:'Almond Liqueur',tags:['liqueur','amaretto','disaronno','almond']},
+      {n:"Dottie May's Oat Cream",p:null,d:'Oat Cream Liqueur',tags:['liqueur','dottie may','oat','cream','dairy free']},
+      {n:"Dr. McGillicuddy's Cherry",p:null,d:'Cherry Schnapps',tags:['liqueur','mcgillicuddys','cherry','shot','schnapps']},
+      {n:"Dr. McGillicuddy's Grape",p:null,d:'Grape Schnapps',tags:['liqueur','mcgillicuddys','grape','shot','schnapps']},
+      {n:"Dr. McGillicuddy's Mint",p:null,d:'Mint Schnapps',tags:['liqueur','mcgillicuddys','mint','shot','schnapps']},
+      {n:"Dr. McGillicuddy's Peach",p:null,d:'Peach Schnapps',tags:['liqueur','mcgillicuddys','peach','shot','schnapps']},
+      {n:'Galliano',p:null,d:'Italian Herbal Liqueur',tags:['liqueur','galliano','italian','vanilla','herbal']},
+      {n:'Goldschläger',p:null,d:'Cinnamon Schnapps with gold flakes',tags:['liqueur','goldschlager','cinnamon','gold','schnapps','shot']},
+      {n:'Grand Marnier',p:null,d:'Orange Cognac Liqueur',tags:['liqueur','grand marnier','orange','cognac']},
+      {n:'Jägermeister',p:null,d:'Herbal Liqueur',tags:['liqueur','jager','jagermeister','shot','herbal']},
+      {n:'Kahlúa',p:null,d:'Coffee Liqueur',tags:['liqueur','kahlua','coffee']},
+      {n:'Midori',p:null,d:'Melon Liqueur',tags:['liqueur','midori','melon','green']},
+      {n:'Rumple Minze',p:null,d:'Peppermint Schnapps',tags:['liqueur','rumple minze','peppermint','schnapps','shot']},
+      {n:'Sambuca Black',p:null,d:'Black Anise Liqueur',tags:['liqueur','sambuca','black','anise','licorice']},
+      {n:'Sambuca White',p:null,d:'White Anise Liqueur',tags:['liqueur','sambuca','white','anise','licorice']},
+      {n:'Travis Hasse Apple Pie',p:null,d:'Apple Pie Liqueur',tags:['liqueur','travis hasse','apple pie','dessert','wisconsin']},
+      {n:'Travis Hasse Cherry Pie',p:null,d:'Cherry Pie Liqueur',tags:['liqueur','travis hasse','cherry pie','dessert','wisconsin']},
+      {n:'Custom Liqueur',p:null,d:'Specify in notes',custom:true,tags:['liqueur','custom']},
+    ],
+    'Mixed Drinks':[
+      {n:'Old Fashioned',p:null,d:'Brandy or Whiskey · sweet or sour',tags:['mixed','cocktail','brandy','whiskey','popular','wisconsin','of'],
+        mods:[{l:'Base',o:['Brandy (Korbel)','Whiskey','Bourbon','Top Shelf'],m:false},
+              {l:'Style',o:['Sweet','Sour','Press','2-1-1','Old Style'],m:false},
+              {l:'Garnish',o:['Cherry & Orange','Olives','Mushrooms','Pickle','None'],m:false}]},
+      {n:'Brandy Old Fashioned',p:null,d:'Wisconsin classic',tags:['old fashioned','brandy','korbel','wisconsin','popular'],
+        mods:[{l:'Style',o:['Sweet','Sour','Press'],m:false},
+              {l:'Garnish',o:['Cherry & Orange','Olives','Mushrooms','Pickle','None'],m:false}]},
+      {n:'Margarita',p:null,d:'Tequila, lime, triple sec',tags:['marg','margarita','tequila','popular','lime'],
+        mods:[{l:'Style',o:['On the Rocks','Frozen','Up'],m:false},
+              {l:'Salt',o:['Salt Rim','No Salt','Sugar Rim','Tajin Rim'],m:false},
+              {l:'Flavor',o:['Classic','Strawberry','Mango','Raspberry','Spicy'],m:false},
+              {l:'Tequila',o:['Rail','Cuervo','Patron','Casamigos','Don Julio'],m:false}]},
+      {n:'Top Shelf Margarita',p:null,d:'Patrón + Cointreau + fresh lime',tags:['marg','margarita','top shelf','patron','cointreau','premium']},
+      {n:'Spicy Margarita',p:null,d:'Tequila, jalapeño, lime',tags:['marg','margarita','spicy','jalapeno','tequila']},
+      {n:'Paloma',p:null,d:'Tequila, grapefruit, lime, soda',tags:['paloma','tequila','grapefruit','lime']},
+      {n:'Tequila Sunrise',p:null,d:'Tequila, OJ, grenadine',tags:['tequila','sunrise','oj','grenadine']},
+      {n:'Bloody Mary',p:null,d:'Vodka, bloody mix, garnish',tags:['bloody','mary','vodka','brunch','popular'],
+        mods:[{l:'Spice',o:['Mild','Medium','Hot','Extra Hot'],m:false},
+              {l:'Beer Back',o:['No','Miller Lite','Coors Light','Hamms','PBR'],m:false},
+              {l:'Vodka',o:['Rail','Titos','Absolut','Ketel','Grey Goose'],m:false}]},
+      {n:'Bloody Maria',p:null,d:'Tequila bloody',tags:['bloody','maria','tequila','brunch']},
+      {n:'Long Island Iced Tea',p:null,d:'5 liquors + cola',tags:['long island','liit','strong','popular','iced tea']},
+      {n:'Texas Tea',p:null,d:'Long Island + bourbon',tags:['texas tea','long island','strong','bourbon']},
+      {n:'Adios M.F.',p:null,d:'Blue Long Island',tags:['adios','blue','long island','strong']},
+      {n:'Moscow Mule',p:null,d:'Vodka, ginger beer, lime',tags:['mule','vodka','ginger','lime','copper']},
+      {n:'Kentucky Mule',p:null,d:'Bourbon mule',tags:['mule','kentucky','bourbon','ginger']},
+      {n:'Mexican Mule',p:null,d:'Tequila mule',tags:['mule','mexican','tequila','ginger']},
+      {n:'Vodka Soda',p:null,d:'Vodka + soda',tags:['vodka','soda','low cal'],
+        mods:[{l:'Mixer',o:['Soda Water','Tonic','Ginger Beer','Cranberry','Pineapple','OJ','Sprite','Coke'],m:false},
+              {l:'Garnish',o:['Lime','Lemon','Cucumber','None'],m:false}]},
+      {n:'Vodka Cranberry',p:null,d:'Vodka + cranberry juice',tags:['vodka','cranberry','juice','cape codder']},
+      {n:'Vodka Energy Drink',p:null,d:'Vodka + house energy drink',tags:['vodka','energy drink','energy']},
+      {n:'Vodka Lemonade',p:null,d:'Vodka + lemonade',tags:['vodka','lemonade']},
+      {n:'Screwdriver',p:null,d:'Vodka + OJ',tags:['vodka','screwdriver','oj','orange']},
+      {n:'Greyhound',p:null,d:'Vodka + grapefruit',tags:['vodka','greyhound','grapefruit']},
+      {n:'Cosmopolitan',p:null,d:'Vodka, triple sec, cranberry, lime',tags:['cosmo','cosmopolitan','vodka','cranberry']},
+      {n:'Lemon Drop Martini',p:null,d:'Vodka, lemon, sugar rim',tags:['lemon drop','martini','vodka','sweet']},
+      {n:'Dirty Martini',p:null,d:'Vodka or Gin, olive brine',tags:['martini','dirty','vodka','gin','olive']},
+      {n:'Gin & Tonic',p:null,d:'Gin + tonic + lime',tags:['gin','tonic','lime','g&t']},
+      {n:'Tom Collins',p:null,d:'Gin, lemon, sugar, soda',tags:['gin','tom collins','collins','lemon']},
+      {n:'Negroni',p:null,d:'Gin, Campari, sweet vermouth',tags:['gin','negroni','campari','vermouth']},
+      {n:'Aperol Spritz',p:null,d:'Aperol, prosecco, soda',tags:['aperol','spritz','prosecco','italian','brunch']},
+      {n:'Rum & Coke',p:null,d:'Rum + cola',tags:['rum','coke','cola','cuba libre']},
+      {n:'Piña Colada',p:null,d:'Rum, coconut, pineapple',tags:['rum','pina colada','coconut','pineapple','frozen','tropical']},
+      {n:'Daiquiri',p:null,d:'Rum, lime, sugar',tags:['rum','daiquiri','lime','frozen'],
+        mods:[{l:'Style',o:['On the Rocks','Frozen'],m:false},
+              {l:'Flavor',o:['Classic','Strawberry','Mango','Banana'],m:false}]},
+      {n:'Mai Tai',p:null,d:'Rum, orgeat, lime, orange',tags:['rum','mai tai','tropical']},
+      {n:'Hurricane',p:null,d:'Rum, fruit juice, grenadine',tags:['rum','hurricane','tropical','sweet']},
+      {n:'Whiskey Sour',p:null,d:'Whiskey, lemon, sugar',tags:['whiskey','sour','lemon']},
+      {n:'Manhattan',p:null,d:'Whiskey, vermouth, bitters',tags:['whiskey','manhattan','vermouth','rye']},
+      {n:'Whiskey Ginger',p:null,d:'Whiskey + ginger ale',tags:['whiskey','ginger','jack']},
+      {n:'Jack & Coke',p:null,d:'Jack Daniel’s + Coke',tags:['jack','coke','jd','whiskey','popular']},
+      {n:'7 & 7',p:null,d:"Seagram's 7 + 7-Up",tags:['seven','7&7','seagrams','whiskey']},
+      {n:'Mint Julep',p:null,d:'Bourbon, mint, sugar',tags:['bourbon','mint julep','derby']},
+      {n:'Espresso Martini',p:null,d:'Vodka, espresso, kahlua',tags:['espresso','martini','vodka','coffee','popular']},
+      {n:'White Russian',p:null,d:'Vodka, kahlua, cream',tags:['white russian','vodka','kahlua','cream','dude']},
+      {n:'Mudslide',p:null,d:'Vodka, kahlua, baileys, cream',tags:['mudslide','vodka','kahlua','baileys','dessert']},
+      {n:'Brandy Alexander',p:null,d:'Brandy, crème de cacao, cream',tags:['brandy','alexander','dessert','wisconsin']},
+      {n:'Pink Squirrel',p:null,d:'Wisconsin dessert cocktail',tags:['pink squirrel','wisconsin','dessert','cream']},
+      {n:'Grasshopper',p:null,d:'Mint, cocoa, cream',tags:['grasshopper','wisconsin','dessert','cream','mint']},
+      {n:'Custom Cocktail',p:null,d:'Specify in notes',custom:true,tags:['cocktail','custom']},
+    ],
+    'Shots':[
+      {n:'Pickle Shot',p:null,d:'Pickle brine + vodka or whiskey',tags:['shot','pickle','specialty','popular']},
+      {n:'Lemon Drop',p:null,d:'Vodka, lemon, sugar',tags:['shot','lemon drop','vodka','sweet']},
+      {n:'Jäger Bomb',p:null,d:'Jägermeister + energy drink',tags:['shot','jager','bomb','energy drink','energy']},
+      {n:'Vegas Bomb',p:null,d:'Crown, peach, cranberry + energy drink',tags:['shot','vegas bomb','crown','peach','energy drink']},
+      {n:'Irish Car Bomb',p:null,d:'Guinness + Baileys + Jameson',tags:['shot','car bomb','irish','guinness','baileys','jameson']},
+      {n:'Fireball Shot',p:null,d:'Cinnamon whisky',tags:['shot','fireball','cinnamon']},
+      {n:'Tequila Shot',p:null,d:'Salt & lime',tags:['shot','tequila','salt','lime']},
+      {n:'Patrón Shot',p:null,d:'Premium tequila',tags:['shot','patron','tequila','premium']},
+      {n:'Washington Apple',p:null,d:'Crown, sour apple, cranberry',tags:['shot','crown','apple','washington']},
+      {n:'Kamikaze',p:null,d:'Vodka, triple sec, lime',tags:['shot','kamikaze','vodka']},
+      {n:'B-52',p:null,d:'Kahlúa, Baileys, Grand Marnier',tags:['shot','b52','kahlua','baileys','grand marnier','layered']},
+      {n:'Buttery Nipple',p:null,d:'Butterscotch + Baileys',tags:['shot','buttery nipple','butterscotch','baileys']},
+      {n:'Slippery Nipple',p:null,d:'Sambuca + Baileys',tags:['shot','slippery nipple','sambuca','baileys']},
+      {n:'Red Headed Slut',p:null,d:'Jäger, peach, cranberry',tags:['shot','red headed slut','jager','peach']},
+      {n:'Three Wise Men',p:null,d:'Jack, Jim, Johnnie',tags:['shot','three wise men','jack','jim beam','johnnie walker']},
+      {n:'Skrewball Shot',p:null,d:'Peanut butter whiskey',tags:['shot','skrewball','peanut butter']},
+      {n:'Green Tea Shot',p:null,d:'Jameson, peach, sweet & sour',tags:['shot','green tea','jameson','peach']},
+      {n:'Rumple Minze',p:null,d:'Peppermint schnapps',tags:['shot','rumple minze','peppermint','schnapps']},
+      {n:'Custom Shot',p:null,d:'Specify liquor in notes',custom:true,tags:['shot','custom']},
+    ],
+    'Wine':[
+      {n:'Cabernet Sauvignon',p:6,d:'Red — dry, full-bodied · $6',tags:['wine','red','cabernet','cab','dry']},
+      {n:'Merlot',p:6,d:'Red — medium-bodied · $6',tags:['wine','red','merlot']},
+      {n:'Chardonnay',p:6,d:'White — buttery · $6',tags:['wine','white','chardonnay','chard']},
+      {n:'Pinot Grigio',p:6,d:'White — crisp · $6',tags:['wine','white','pinot grigio','grigio','crisp']},
+      {n:'Moscato',p:6,d:'Sweet white · $6',tags:['wine','white','moscato','sweet']},
+      {n:'Custom Wine',p:null,d:'Specify in notes',custom:true,tags:['wine','custom']},
+    ],
+    'Brunch / Mimosa':[
+      {n:'Mimosa',p:7,d:'Champagne + juice · $7 single · served until 4pm',tags:['mimosa','brunch','champagne','orange juice','popular','sparkling'],
+        mods:[{l:'Flavor',o:['Orange','Grape','Mango','Peach','Pineapple','Strawberry'],m:false,req:true}]},
+      {n:'Bottomless Mimosa',p:18,d:'Bottomless · $18 · served until 4pm',tags:['mimosa','brunch','bottomless','champagne','sparkling','popular'],
+        mods:[{l:'Flavor',o:['Orange','Grape','Mango','Peach','Pineapple','Strawberry'],m:true,max:6}]},
+      {n:'Aperol Spritz',p:8,d:'Aperol Apertivo + champagne + soda · $8',tags:['aperol','spritz','brunch','champagne','italian','sparkling']},
+      {n:'Salty Dog',p:7,d:'Aviation Gin + DeKuyper O3 + grapefruit juice · $7',tags:['salty dog','gin','grapefruit','brunch','aviation']},
+      {n:'Basic Bloody',p:7,d:'Vodka + bloody mary mix · no toppings · $7',tags:['bloody','basic bloody','vodka','brunch','simple']},
+      {n:'Bloody Mary',p:8,d:'Vodka + bloody mix · loaded · includes Miller Lite or Coors Light chaser · $8',tags:['bloody','mary','vodka','brunch','popular','loaded'],
+        mods:[{l:'Chaser',o:['Miller Lite','Coors Light','Craft beer (+$1)','Wicked Pickle (+$1)','Kurvball BBQ (+$1)','Hanson Habanero (+$1)','None'],m:false,req:true}]},
+      {n:'Lunch Box',p:7,d:'Amaretto + Blue Moon + OJ · $7',tags:['lunch box','amaretto','blue moon','orange juice','brunch']},
+      {n:'Hangover Cure',p:9,d:'Rum + OJ + coconut cream + pineapple · $9',tags:['hangover cure','rum','tropical','brunch','coconut','pineapple']},
+      {n:'Irish Coffee',p:null,d:'Coffee + whiskey + cream',tags:['coffee','irish','whiskey','brunch']},
+    ],
+    'NA Drinks':[
+      {n:'Pepsi',p:null,d:'',tags:['na','soda','pop','pepsi','cola','coke','non-alcoholic']},
+      {n:'Diet Pepsi',p:null,d:'',tags:['na','soda','pop','diet','pepsi','non-alcoholic']},
+      {n:'Coke',p:null,d:'',tags:['na','soda','pop','coke','cola','coca cola','non-alcoholic']},
+      {n:'Diet Coke',p:null,d:'',tags:['na','soda','pop','diet','coke','non-alcoholic']},
+      {n:'Mountain Dew',p:null,d:'',tags:['na','soda','pop','dew','mountain dew','non-alcoholic']},
+      {n:'Dr Pepper',p:null,d:'',tags:['na','soda','pop','dr pepper','non-alcoholic']},
+      {n:'Sierra Mist / Sprite',p:null,d:'Lemon-Lime soda',tags:['na','soda','pop','lemon-lime','sierra mist','sprite','non-alcoholic']},
+      {n:'Root Beer',p:null,d:'',tags:['na','soda','pop','root beer','non-alcoholic']},
+      {n:'Ginger Ale',p:null,d:'',tags:['na','soda','pop','ginger ale','non-alcoholic']},
+      {n:'Tonic Water',p:null,d:'',tags:['na','soda','pop','tonic','non-alcoholic']},
+      {n:'Club Soda',p:null,d:'',tags:['na','soda','pop','club','seltzer','non-alcoholic']},
+      {n:'Lemonade',p:null,d:'',tags:['na','lemonade','non-alcoholic']},
+      {n:'Strawberry Lemonade',p:null,d:'',tags:['na','lemonade','strawberry','non-alcoholic']},
+      {n:'Arnold Palmer',p:null,d:'Half tea, half lemonade',tags:['na','arnold palmer','tea','lemonade','non-alcoholic']},
+      {n:'Iced Tea',p:null,d:'',tags:['na','tea','iced','non-alcoholic'],
+        mods:[{l:'Type',o:['Sweet','Unsweet','Half & Half'],m:false}]},
+      {n:'Water',p:null,d:'',tags:['na','water','tap water','non-alcoholic']},
+      {n:'Bottled Water',p:null,d:'',tags:['na','water','bottled','non-alcoholic']},
+      {n:'Sparkling Water',p:null,d:'San Pellegrino / Topo Chico',tags:['na','sparkling water','pellegrino','topo chico','non-alcoholic']},
+      {n:'Coffee',p:null,d:'',tags:['na','coffee','hot','non-alcoholic']},
+      {n:'Decaf Coffee',p:null,d:'',tags:['na','coffee','decaf','hot','non-alcoholic']},
+      {n:'Hot Tea',p:null,d:'',tags:['na','tea','hot','non-alcoholic']},
+      {n:'Hot Chocolate',p:null,d:'',tags:['na','hot chocolate','cocoa','non-alcoholic']},
+      {n:'Orange Juice',p:null,d:'',tags:['na','juice','oj','orange','non-alcoholic']},
+      {n:'Cranberry Juice',p:null,d:'',tags:['na','juice','cranberry','non-alcoholic']},
+      {n:'Pineapple Juice',p:null,d:'',tags:['na','juice','pineapple','non-alcoholic']},
+      {n:'Grapefruit Juice',p:null,d:'',tags:['na','juice','grapefruit','non-alcoholic']},
+      {n:'Tomato Juice',p:null,d:'',tags:['na','juice','tomato','bloody','non-alcoholic']},
+      {n:'Milk',p:null,d:'',tags:['na','milk','non-alcoholic']},
+      {n:'Chocolate Milk',p:null,d:'',tags:['na','chocolate milk','non-alcoholic']},
+      {n:'Energy Drink',p:null,d:'House energy drink',tags:['na','energy','energy drink','non-alcoholic']},
+      {n:'Custom NA Drink',p:null,d:'Specify in notes',custom:true,tags:['na','custom','non-alcoholic']},
+    ],
+  }
+};
+
+// Resolve any "ref" placeholders in Popular sections to actual items
+function resolveRefs(){
+  for(const sec of Object.keys(MENU)){
+    for(const cat of Object.keys(MENU[sec])){
+      MENU[sec][cat] = MENU[sec][cat].map(it=>{
+        if(it.ref){
+          const [s,c,n] = it.ref;
+          const found = MENU[s][c]?.find(x=>x.n===n);
+          if(found) return {...found, _origCat:c};
+        }
+        return it;
+      });
+    }
+  }
+}
+resolveRefs();
+
+// ── QUICK NOTE CHIPS ──
+const QUICK_NOTES_FOOD = ['no onion','no tomato','no lettuce','no pickle','no mayo',
+  'sauce on side','extra sauce','extra crispy','well done','medium','medium rare',
+  'gluten free','allergy ⚠','ranch','bleu cheese'];
+const QUICK_NOTES_DRINK = ['no ice','light ice','extra ice','extra lime','no salt',
+  'salt rim','double','tall','dirty','dry','allergy ⚠'];
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const LS = {
+  order:'no_scratchpad_order',
+  fav:'no_favorites',
+  recent:'no_recents',
+  beg:'no_beginner',
+  table:'no_table',
+  server:'no_server',
+};
+let section = 'food';
+let category = 'Popular';
+let searchQ = '';
+let order = JSON.parse(localStorage.getItem(LS.order)||'[]');
+let favorites = JSON.parse(localStorage.getItem(LS.fav)||'[]'); // array of "section::name"
+let recents = JSON.parse(localStorage.getItem(LS.recent)||'[]'); // array of "section::cat::name"
+let beginner = localStorage.getItem(LS.beg)==='1';
+let curItem = null;
+let curCtx = null;
+let sel = {};
+let modLimits = {};
+let mQty = 1;
+let mSeat = '';
+let savedNote = '';
+
+function save(){
+  localStorage.setItem(LS.order,JSON.stringify(order));
+  localStorage.setItem(LS.fav,JSON.stringify(favorites));
+  localStorage.setItem(LS.recent,JSON.stringify(recents));
+  localStorage.setItem(LS.beg,beginner?'1':'0');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════════════════════════
+function buildSearchIndex(){
+  const idx = [];
+  for(const sec of Object.keys(MENU)){
+    for(const cat of Object.keys(MENU[sec])){
+      if(cat.startsWith('Popular')) continue; // skip duplicates
+      MENU[sec][cat].forEach((item,i)=>{
+        const haystack = [item.n,item.d||'',cat,sec,...(item.tags||[]),...(item.aliases||[])]
+          .join(' ').toLowerCase();
+        idx.push({sec,cat,i,item,haystack});
+      });
+    }
+  }
+  return idx;
+}
+let SEARCH_IDX = [];
+
+function onSearch(){
+  searchQ = document.getElementById('searchInp').value.trim().toLowerCase();
+  document.getElementById('searchClear').classList.toggle('vis', !!searchQ);
+  renderItems();
+}
+function clearSearch(){
+  document.getElementById('searchInp').value='';
+  searchQ='';
+  document.getElementById('searchClear').classList.remove('vis');
+  renderItems();
+}
+
+function searchResults(q){
+  const terms = q.split(/\s+/).filter(Boolean);
+  return SEARCH_IDX.filter(e=>terms.every(t=>e.haystack.includes(t)));
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER MENU
+// ══════════════════════════════════════════════════════════════
+function setSection(s){
+  section = s;
+  document.getElementById('tab-food').classList.toggle('active', s==='food');
+  document.getElementById('tab-drinks').classList.toggle('active', s==='drinks');
+  const cats = Object.keys(MENU[s]);
+  category = cats[0];
+  renderCats(cats);
+  const cb = document.getElementById('catBar');
+  if(cb) cb.scrollLeft = 0;
+  renderItems();
+}
+
+function renderCats(cats){
+  // Add Favorites as virtual cat at front
+  const virtual = [];
+  if(favorites.length) virtual.push('★ Favorites');
+  const all = [...virtual,...cats];
+  document.getElementById('catBar').innerHTML = all.map(c=>
+    `<button class="cat-btn${c===category?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`
+  ).join('');
+}
+
+function setCat(c){
+  category = c;
+  renderCats(Object.keys(MENU[section]));
+  renderItems();
+}
+
+function favKey(sec,name){return sec+'::'+name;}
+function recKey(sec,cat,name){return sec+'::'+cat+'::'+name;}
+
+function getItemsForView(){
+  // Search overrides everything
+  if(searchQ){
+    const r = searchResults(searchQ);
+    return {grouped:false, list: r.map(e=>({sec:e.sec,cat:e.cat,i:e.i,item:e.item}))};
+  }
+  // Favorites
+  if(category==='★ Favorites'){
+    const list=[];
+    favorites.forEach(k=>{
+      const [sec,name] = k.split('::');
+      for(const cat of Object.keys(MENU[sec]||{})){
+        if(cat.startsWith('Popular')) continue;
+        const idx = MENU[sec][cat].findIndex(x=>x.n===name);
+        if(idx>=0){list.push({sec,cat,i:idx,item:MENU[sec][cat][idx]});break;}
+      }
+    });
+    return {grouped:false,list};
+  }
+  // Recents
+  if(category==='🕒 Recent'){
+    const list=[];
+    recents.slice(0,20).forEach(k=>{
+      const [sec,cat,name] = k.split('::');
+      const idx = MENU[sec]?.[cat]?.findIndex(x=>x.n===name);
+      if(idx>=0&&idx!=null) list.push({sec,cat,i:idx,item:MENU[sec][cat][idx]});
+    });
+    return {grouped:false,list};
+  }
+  // Normal category
+  const items = MENU[section][category]||[];
+  return {grouped:false,list:items.map((item,i)=>({sec:section,cat:category,i,item}))};
+}
+
+function renderItems(){
+  const grid = document.getElementById('itemsGrid');
+  grid.classList.toggle('compact', !beginner);
+  const view = getItemsForView();
+  if(!view.list.length){
+    grid.innerHTML = `<div class="empty-search">
+      ${searchQ?`No matches for "<b>${escapeHtml(searchQ)}</b>"`:'Nothing here yet.'}
+    </div>`;
+    return;
+  }
+  grid.innerHTML = view.list.map(({sec,cat,i,item})=>{
+    const fk = favKey(sec,item.n);
+    const isFav = favorites.includes(fk);
+    return `<button class="item-btn${item.custom?' custom-item':''}"
+      onclick="openModal('${sec}','${cat.replace(/'/g,"\\'")}',${i})">
+      <span class="star${isFav?' on':''}" onclick="event.stopPropagation();toggleFav('${sec}','${item.n.replace(/'/g,"\\'")}')">${isFav?'★':'☆'}</span>
+      <div class="iname">${escapeHtml(item.n)}</div>
+      ${beginner&&item.d?`<div class="idesc">${escapeHtml(item.d.length>70?item.d.slice(0,68)+'…':item.d)}</div>`:''}
+      ${beginner?`<div class="icat">${escapeHtml(item._origCat||cat)}</div>`:''}
+    </button>`;
+  }).join('');
+}
+
+function toggleFav(sec,name){
+  const k = favKey(sec,name);
+  const i = favorites.indexOf(k);
+  if(i>=0) favorites.splice(i,1); else favorites.push(k);
+  save();
+  renderCats(Object.keys(MENU[section]));
+  renderItems();
+}
+
+function pushRecent(sec,cat,name){
+  const k = recKey(sec,cat,name);
+  recents = [k,...recents.filter(r=>r!==k)].slice(0,20);
+  save();
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+// ══════════════════════════════════════════════════════════════
+// MODAL
+// ══════════════════════════════════════════════════════════════
+function openModal(sec, cat, idx){
+  const baseCat = cat.startsWith('Popular')||cat==='★ Favorites'||cat==='🕒 Recent'
+    ? (MENU[sec][cat][idx]._origCat || cat) : cat;
+  curItem = {...MENU[sec][cat][idx]};
+  curCtx = {sec, cat:baseCat, name:curItem.n};
+  sel = {};
+  modLimits = {};
+  mQty = 1;
+  mSeat = '';
+  savedNote = '';
+
+  document.getElementById('mTitle').textContent = curItem.n;
+  document.getElementById('mSub').textContent = `${baseCat}${curItem._origCat&&curItem._origCat!==baseCat?' · '+curItem._origCat:''}`;
+
+  let html = '';
+
+  if(beginner && curItem.d) html += `<div class="modal-desc">${escapeHtml(curItem.d)}</div>`;
+  if(beginner && curItem.pair) html += `<div class="hint">💡 Often ordered with: ${escapeHtml(curItem.pair)}</div>`;
+
+  // Size
+  if(curItem.sizes){
+    sel['__size'] = curItem.sizes[0];
+    html += optSection('Size',
+      curItem.sizes.map((s,i)=>chipHtml(s.l, i===0, `pickSize(${i},this)`)).join(''),
+      '__size');
+  }
+
+  // Side picker for entrees
+  if(curItem.sides){
+    sel['Side'] = 'Fries';
+    html += optSection('Side <span style="color:var(--muted);font-weight:400">(included)</span>',
+      SIDE_MOD.o.map((o,i)=>{
+        const isUp = o.includes('+$');
+        return `<div class="chip${i===0?' sel':''}${isUp?' upsell':''}"
+          onclick="pickChip('Side',${JSON.stringify(o).replace(/"/g,'&quot;')},this,false)">${escapeHtml(o)}</div>`;
+      }).join(''),'Side');
+  }
+
+  // Custom mods
+  if(curItem.mods){
+    curItem.mods.forEach(mod=>{
+      const key = mod.l;
+      if(!mod.m){ sel[key] = mod.o[0]; }
+      else { sel[key] = []; }
+      modLimits[key] = currentLimit(mod);
+      html += renderModSection(mod);
+    });
+  }
+
+  // Quick note chips
+  const isDrink = sec==='drinks';
+  const quickNotes = isDrink ? QUICK_NOTES_DRINK : QUICK_NOTES_FOOD;
+  html += `<div class="opt-sec">
+    <div class="opt-lbl">Quick Notes <span style="color:var(--muted);font-weight:400">(tap to toggle)</span></div>
+    <div class="chips">
+      ${quickNotes.map(q=>`<div class="chip note-chip" onclick="toggleQuickNote(${JSON.stringify(q).replace(/"/g,'&quot;')},this)">${escapeHtml(q)}</div>`).join('')}
+    </div>
+  </div>`;
+
+  // Notes textarea
+  html += `<div class="opt-sec">
+    <div class="opt-lbl">Notes / Custom Mods</div>
+    <textarea class="notes-ta" id="mNotes" placeholder="Anything else… allergies, temp, special requests"></textarea>
+  </div>`;
+
+  // Quantity
+  html += `<div class="opt-sec">
+    <div class="opt-lbl">Quantity</div>
+    <div class="qty-row">
+      <button class="qty-btn qty-btn-lg" onclick="chgQty(-1)">−</button>
+      <span class="modal-qty" id="mQtyDisp">1</span>
+      <button class="qty-btn qty-btn-lg" onclick="chgQty(1)">+</button>
+    </div>
+  </div>`;
+
+  document.getElementById('mBody').innerHTML = html;
+  document.getElementById('modalOv').classList.remove('hidden');
+  document.getElementById('modal').onclick = e => e.stopPropagation();
+  document.getElementById('modalOv').onclick = e => { if(e.target===document.getElementById('modalOv')) closeModal(); };
+}
+
+function optSection(lbl, inner, idSuffix){
+  return `<div class="opt-sec" id="sec_${idSuffix}">
+    <div class="opt-lbl">${lbl}</div>
+    <div class="chips" id="c_${idSuffix}">${inner}</div>
+  </div>`;
+}
+
+function modKeyId(key){return key.replace(/[^a-zA-Z0-9]/g,'_');}
+
+function currentLimit(mod){
+  if(!mod.m) return null;
+  if(mod.maxBySize && sel['__size']) return mod.maxBySize[sel['__size'].l] ?? mod.max ?? null;
+  return mod.max ?? null;
+}
+
+function groupTotal(group){
+  let n = 0;
+  (curItem.mods||[]).forEach(m=>{
+    if(m.group===group){
+      const v = sel[m.l];
+      if(Array.isArray(v)) n += v.length;
+    }
+  });
+  return n;
+}
+
+function renderModSection(mod){
+  const key = mod.l;
+  const limit = currentLimit(mod);
+  const limitTxt = mod.m
+    ? (limit ? ` <span style="color:var(--gold);font-weight:700">(pick up to ${limit}${mod.group?' total':''})</span>`
+             : ' <span style="color:var(--muted);font-weight:400">(multi)</span>')
+    : '';
+  const lbl = `${escapeHtml(key)}${mod.req?' <span style="color:var(--red)">*</span>':''}${limitTxt}`;
+  const selVals = Array.isArray(sel[key]) ? sel[key] : [sel[key]];
+  const inner = mod.o.map((o,i)=>{
+    let cls = '';
+    if(mod.m){
+      if(selVals.includes('NO:'+o)) cls = ' no';
+      else if(selVals.includes(o)) cls = ' sel';
+    } else {
+      if(sel[key]===o) cls = ' sel';
+    }
+    return `<div class="chip${cls}"
+      onclick="pickChip(${JSON.stringify(key).replace(/"/g,'&quot;')},${JSON.stringify(o).replace(/"/g,'&quot;')},this,${mod.m})">${escapeHtml(o)}</div>`;
+  }).join('');
+  return optSection(lbl, inner, modKeyId(key));
+}
+
+function chipHtml(text, sel, onclick){
+  return `<div class="chip${sel?' sel':''}" onclick="${onclick}">${escapeHtml(text)}</div>`;
+}
+
+function pickSize(i, el){
+  sel['__size'] = curItem.sizes[i];
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  // Re-render any mods whose limit depends on size
+  if(curItem.mods){
+    // First trim grouped mods so combined total <= new limit
+    const groupsTrimmed = new Set();
+    curItem.mods.forEach(mod=>{
+      if(!mod.maxBySize || !mod.group || groupsTrimmed.has(mod.group)) return;
+      const newLimit = currentLimit(mod);
+      if(!newLimit) return;
+      let total = groupTotal(mod.group);
+      if(total > newLimit){
+        // Trim from the end of each grouped mod's selection until under cap
+        const grouped = curItem.mods.filter(m=>m.group===mod.group);
+        for(let i=grouped.length-1; i>=0 && total>newLimit; i--){
+          const k = grouped[i].l;
+          if(Array.isArray(sel[k])){
+            while(sel[k].length && total>newLimit){ sel[k].pop(); total--; }
+          }
+        }
+        toast(`Trimmed sauces/rubs (max ${newLimit} total)`);
+      }
+      groupsTrimmed.add(mod.group);
+    });
+    curItem.mods.forEach(mod=>{
+      if(!mod.maxBySize) return;
+      const newLimit = currentLimit(mod);
+      modLimits[mod.l] = newLimit;
+      // Trim selections if over new limit (non-grouped)
+      if(!mod.group && newLimit && Array.isArray(sel[mod.l]) && sel[mod.l].length > newLimit){
+        const dropped = sel[mod.l].length - newLimit;
+        sel[mod.l] = sel[mod.l].slice(0, newLimit);
+        toast(`Trimmed ${dropped} ${mod.l.toLowerCase()} (max ${newLimit})`);
+      }
+      const sec = document.getElementById('sec_'+modKeyId(mod.l));
+      if(sec) sec.outerHTML = renderModSection(mod);
+    });
+  }
+}
+
+function pickChip(key, val, el, multi){
+  if(multi){
+    // 3-state cycle: off → sel (wants) → no (excluded ✕) → off
+    if(!Array.isArray(sel[key])) sel[key]=[];
+    const isSel = el.classList.contains('sel');
+    const isNo  = el.classList.contains('no');
+    if(isSel){
+      // selected → excluded
+      el.classList.remove('sel');
+      el.classList.add('no');
+      sel[key]=sel[key].filter(v=>v!==val);
+      sel[key].push('NO:'+val);
+    } else if(isNo){
+      // excluded → off
+      el.classList.remove('no');
+      sel[key]=sel[key].filter(v=>v!=='NO:'+val);
+    } else {
+      // off → selected (respect cap; excluded items don’t count toward cap)
+      const limit = modLimits[key];
+      const mod = (curItem.mods||[]).find(m=>m.l===key);
+      const positiveCount = sel[key].filter(v=>!String(v).startsWith('NO:')).length;
+      if(mod && mod.group){
+        if(limit && groupTotal(mod.group) >= limit){
+          toast(`Max ${limit} sauces/rubs total`);
+          return;
+        }
+      } else if(limit && positiveCount >= limit){
+        toast(`Max ${limit} ${key.toLowerCase()}`);
+        return;
+      }
+      el.classList.add('sel');
+      sel[key].push(val);
+    }
+  } else {
+    el.parentElement.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+    el.classList.add('sel');
+    sel[key]=val;
+  }
+}
+
+function pickSeat(n, el){
+  mSeat = (mSeat == n) ? '' : String(n);
+  document.querySelectorAll('.seat-chip').forEach(c=>c.classList.remove('sel'));
+  if(mSeat) el.classList.add('sel');
+}
+
+function chgQty(d){ mQty=Math.max(1,mQty+d); document.getElementById('mQtyDisp').textContent=mQty; }
+
+function toggleQuickNote(txt, el){
+  const ta = document.getElementById('mNotes');
+  if(!ta) return;
+  // Split current notes into parts (comma-separated), case-insensitive match
+  const parts = ta.value.split(',').map(p=>p.trim()).filter(Boolean);
+  const lower = txt.toLowerCase();
+  const idx = parts.findIndex(p=>p.toLowerCase()===lower);
+  if(idx>=0){
+    parts.splice(idx,1);
+    el.classList.remove('sel');
+  } else {
+    parts.push(txt);
+    el.classList.add('sel');
+  }
+  ta.value = parts.join(', ');
+}
+
+function addToOrder(){
+  const notes = (document.getElementById('mNotes')?.value||'').trim();
+
+  // Build mods string
+  const parts=[];
+  for(const[k,v] of Object.entries(sel)){
+    if(k==='__size'){ parts.push(`Size: ${v.l}`); continue; }
+    if(Array.isArray(v)){
+      if(!v.length) continue;
+      const yes = v.filter(x=>!String(x).startsWith('NO:'));
+      const no  = v.filter(x=> String(x).startsWith('NO:')).map(x=>x.slice(3));
+      const segs = [];
+      if(yes.length) segs.push(yes.join(', '));
+      if(no.length)  segs.push('NO ' + no.join(', NO '));
+      if(segs.length) parts.push(`${k}: ${segs.join(' | ')}`);
+    }
+    else if(v) parts.push(`${k}: ${v}`);
+  }
+
+  let price = curItem.p || 0;
+  if(sel['__size']) price = sel['__size'].p;
+
+  order.push({
+    id: Date.now()+Math.random(),
+    name: curItem.n,
+    price,
+    qty: mQty,
+    seat: mSeat,
+    mods: parts.join(' | '),
+    notes,
+  });
+
+  if(curCtx) pushRecent(curCtx.sec, curCtx.cat, curCtx.name);
+  save();
+  closeModal();
+  renderOrder();
+  flashBadge();
+  toast(`Added ${mQty>1?mQty+'× ':''}${curItem.n}`);
+}
+
+function closeModal(){
+  document.getElementById('modalOv').classList.add('hidden');
+  curItem=null; curCtx=null; sel={}; mQty=1; mSeat='';
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCRATCHPAD ORDER RENDERING
+// ══════════════════════════════════════════════════════════════
+function orderHTML(){
+  if(!order.length) return `<div class="empty-ord">
+    <div class="empty-ord-ico">📝</div>
+    Scratchpad is empty.<br>Tap any item to add it here as you take the order.
+  </div>`;
+  return order.map(item=>`
+    <div class="ord-item" id="oi_${item.id}">
+      <div class="oi-head">
+        <div class="oi-name">${item.qty>1?`<span style="color:var(--gold);margin-right:3px">${item.qty}×</span> `:''}
+          ${escapeHtml(item.name)}
+          ${item.price?`<span class="oi-price">$${Number(item.price).toFixed(2)}</span>`:''}
+        </div>
+        ${item.seat?`<div class="oi-seat">Seat ${escapeHtml(item.seat)}</div>`:''}
+      </div>
+      ${item.mods?`<div class="oi-mods">${
+        item.mods.split(' | ').map(seg=>{
+          const isNo = seg.startsWith('NO ');
+          const colon = seg.indexOf(':');
+          let bullet,key,val;
+          if(isNo){
+            bullet='✕'; key=''; val=seg;
+          } else if(colon>0){
+            bullet='·'; key=seg.slice(0,colon+1); val=seg.slice(colon+1).trim();
+          } else {
+            bullet='·'; key=''; val=seg;
+          }
+          return `<div class="oi-mod-line${isNo?' oi-mod-no':''}">`+
+            `<span class="mod-bullet">${bullet}</span>`+
+            (key?`<span class="mod-key">${escapeHtml(key)}</span>`:'')+
+            `<span class="mod-val">${escapeHtml(val)}</span>`+
+            `</div>`;
+        }).join('')
+      }</div>`:''}
+      ${item.notes?`<div class="oi-notes">📝 ${escapeHtml(item.notes)}</div>`:''}
+      <div class="oi-ctrl">
+        <button class="qty-btn" onclick="chgItemQty('${item.id}',-1)">−</button>
+        <span class="qty-disp">${item.qty}</span>
+        <button class="qty-btn" onclick="chgItemQty('${item.id}',1)">+</button>
+        <button class="rm-btn" onclick="rmItem('${item.id}')" title="Remove">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function footerHTML(noteId){
+  const count = order.reduce((s,i)=>s+i.qty,0);
+  const total = order.reduce((s,i)=>s+(i.price||0)*i.qty,0);
+  return `
+    <div class="ord-foot">
+      <div class="ord-meta">
+        <span><span class="count">${count}</span> item${count===1?'':'s'} on scratchpad</span>
+        ${total?`<span class="total">~$${total.toFixed(2)}</span>`:''}
+      </div>
+      <textarea class="ord-note-ta" id="${noteId}" placeholder="Notes for yourself (allergies, split, rush…)"></textarea>
+      <button class="copy-btn" id="copyBtn_${noteId}" onclick="copyOrderText('${noteId}')">📋 Copy Order Text</button>
+      <button class="clear-big" onclick="clearOrder()">🗑 CLEAR ORDER</button>
+    </div>`;
+}
+
+function renderOrder(){
+  const headHtml = `<div class="ord-head">
+      <h2>📝 Scratchpad Order${getTableLabel()}</h2>
+    </div>`;
+  document.getElementById('sidebar').innerHTML = headHtml +
+    `<div class="ord-items">${orderHTML()}</div>` + footerHTML('noteSidebar');
+  document.getElementById('sheetInner').innerHTML = headHtml +
+    `<div class="ord-items">${orderHTML()}</div>` + footerHTML('noteSheet');
+  updateBadge();
+}
+
+function getTableLabel(){
+  return '';
+}
+
+function chgItemQty(id,d){
+  const it=order.find(i=>i.id==id);
+  if(!it)return;
+  it.qty=Math.max(1,it.qty+d);
+  save(); renderOrder();
+}
+
+function rmItem(id){
+  order=order.filter(i=>i.id!=id);
+  save(); renderOrder();
+}
+
+function clearOrder(){
+  if(!order.length){toast('Nothing to clear');return;}
+  if(confirm('Clear this scratchpad order? Make sure you entered it into the real POS first.')){
+    order=[]; save(); renderOrder(); closeSheet();
+    toast('Scratchpad cleared');
+  }
+}
+
+function updateBadge(){
+  const n=order.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('badge').textContent=n;
+}
+
+function flashBadge(){
+  const b=document.getElementById('badge');
+  b.classList.remove('flashing'); void b.offsetWidth; b.classList.add('flashing');
+  setTimeout(()=>b.classList.remove('flashing'),400);
+}
+
+// ══════════════════════════════════════════════════════════════
+// COPY ORDER TEXT
+// ══════════════════════════════════════════════════════════════
+function buildOrderText(noteId){
+  const server = document.getElementById('serverName').value.trim();
+  const ordNote = document.getElementById(noteId)?.value?.trim() || '';
+  const lines = [];
+  if(server) lines.push(`Server: ${server}`);
+  if(lines.length) lines.push('');
+
+  // Group by seat
+  const bySeat = {};
+  order.forEach(it=>{ const k=it.seat||'—'; (bySeat[k]=bySeat[k]||[]).push(it); });
+  const seatKeys = Object.keys(bySeat).sort((a,b)=>{
+    if(a==='—') return 1; if(b==='—') return -1; return Number(a)-Number(b);
+  });
+
+  seatKeys.forEach(seat=>{
+    if(seat!=='—') lines.push(`— Seat ${seat} —`);
+    bySeat[seat].forEach(it=>{
+      lines.push(`${it.qty}x ${it.name}`);
+      if(it.mods){
+        it.mods.split(' | ').forEach(m=>lines.push(`  • ${m}`));
+      }
+      if(it.notes) lines.push(`  • Note: ${it.notes}`);
+    });
+    lines.push('');
+  });
+
+  if(ordNote){ lines.push('---'); lines.push('Order Note: '+ordNote); }
+  return lines.join('\n').trim();
+}
+
+function copyOrderText(noteId){
+  if(!order.length){toast('Scratchpad is empty');return;}
+  const text = buildOrderText(noteId);
+  const btn = document.getElementById('copyBtn_'+noteId);
+  const done = ()=>{
+    if(btn){btn.textContent='✓ Copied!';btn.classList.add('copied');
+      setTimeout(()=>{btn.textContent='📋 Copy Order Text';btn.classList.remove('copied');},1600);}
+    toast('Order text copied');
+  };
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+
+function fallbackCopy(text,cb){
+  const ta=document.createElement('textarea');
+  ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{document.execCommand('copy');cb();}catch(e){alert(text);}
+  document.body.removeChild(ta);
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOTTOM SHEET
+// ══════════════════════════════════════════════════════════════
+function toggleSheet(){
+  const s=document.getElementById('sheet');
+  const ov=document.getElementById('sheetOv');
+  const open=s.classList.toggle('vis');
+  ov.classList.toggle('vis',open);
+  if(open) renderOrder();
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('vis');
+  document.getElementById('sheetOv').classList.remove('vis');
+}
+
+// ══════════════════════════════════════════════════════════════
+// BEGINNER MODE
+// ══════════════════════════════════════════════════════════════
+function toggleBeginner(){
+  beginner = !beginner;
+  document.getElementById('begToggle').classList.toggle('on', beginner);
+  save();
+  renderItems();
+}
+
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('vis');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('vis'),1700);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+SEARCH_IDX = buildSearchIndex();
+
+// Restore server
+document.getElementById('serverName').value= localStorage.getItem(LS.server)||'';
+document.getElementById('serverName').addEventListener('input',e=>{
+  localStorage.setItem(LS.server,e.target.value);
+});
+
+// Beginner toggle initial
+document.getElementById('begToggle').classList.toggle('on', beginner);
+
+setSection('food');
+renderOrder();
+</script>
+</body>
+</html>
