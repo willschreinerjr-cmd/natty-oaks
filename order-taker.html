@@ -466,7 +466,7 @@
     <div class="modal-body" id="mBody"></div>
     <div class="modal-foot">
       <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-      <button class="add-btn" onclick="addToOrder()">+ Add to Scratchpad</button>
+      <button class="add-btn" onclick="addToOrder()" id="addBtn">+ Add to Scratchpad</button>
     </div>
   </div>
 </div>
@@ -1378,6 +1378,21 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 
 // ══════════════════════════════════════════════════════════════
 // MODAL
+function quickAdd(sec, cat, idx){
+  const item = {...MENU[sec][cat][idx]};
+  order.push({
+    id: Date.now()+Math.random(),
+    name: item.n,
+    price: item.p || 0,
+    qty: 1,
+    seat: '',
+    mods: '',
+    notes: '',
+  });
+  if(item.n) pushRecent(sec, cat, item.n);
+  save(); renderOrder(); flashBadge();
+  toast(item.n);
+}
 // ══════════════════════════════════════════════════════════════
 function openModal(sec, cat, idx){
   const baseCat = cat.startsWith('Popular')||cat==='★ Favorites'||cat==='🕒 Recent'
@@ -1455,6 +1470,8 @@ function openModal(sec, cat, idx){
   </div>`;
 
   document.getElementById('mBody').innerHTML = html;
+  const ab2 = document.getElementById('addBtn');
+  if(ab2) ab2.textContent = '+ Add to Scratchpad';
   document.getElementById('modalOv').classList.remove('hidden');
   document.getElementById('modal').onclick = e => e.stopPropagation();
   document.getElementById('modalOv').onclick = e => { if(e.target===document.getElementById('modalOv')) closeModal(); };
@@ -1642,6 +1659,21 @@ function addToOrder(){
   let price = curItem.p || 0;
   if(sel['__size']) price = sel['__size'].p;
 
+  // If editing an existing item, update it instead
+  if(window._editingOrderId){
+    const it = order.find(x=>x.id==window._editingOrderId);
+    if(it){
+      it.mods = parts.join(' | ');
+      it.notes = notes;
+      it.qty = mQty;
+    }
+    window._editingOrderId = null;
+    if(curCtx) pushRecent(curCtx.sec, curCtx.cat, curCtx.name);
+    save(); closeModal(); renderOrder();
+    toast('Updated');
+    return;
+  }
+
   order.push({
     id: Date.now()+Math.random(),
     name: curItem.n,
@@ -1663,6 +1695,53 @@ function addToOrder(){
 function closeModal(){
   document.getElementById('modalOv').classList.add('hidden');
   curItem=null; curCtx=null; sel={}; mQty=1; mSeat='';
+  window._editingOrderId = null;
+}
+
+function editOrderItem(id){
+  // Stop if they're tapping a button inside the card
+  const it = order.find(x=>x.id==id);
+  if(!it) return;
+  // Build a simple edit modal — just notes + qty, no full menu re-render
+  window._editingOrderId = id;
+  curItem = {n:it.name, p:it.price};
+  curCtx = null;
+  sel = {};
+  mQty = it.qty;
+  mSeat = it.seat||'';
+
+  document.getElementById('mTitle').textContent = it.name;
+  document.getElementById('mSub').textContent = 'Edit order item';
+
+  let html = '';
+
+  // Show current mods as read-only summary
+  if(it.mods){
+    html += `<div class="modal-desc" style="white-space:pre-wrap">${escapeHtml(it.mods.replace(/ \| /g,'\n'))}</div>`;
+  }
+
+  // Notes
+  html += `<div class="opt-sec">
+    <div class="opt-lbl">★ Special Note</div>
+    <textarea class="notes-ta" id="mNotes" placeholder="Allergy, temp, extra request…">${escapeHtml(it.notes||'')}</textarea>
+  </div>`;
+
+  // Quantity
+  html += `<div class="opt-sec">
+    <div class="opt-lbl">Quantity</div>
+    <div class="qty-row">
+      <button class="qty-btn qty-btn-lg" onclick="chgQty(-1)">−</button>
+      <span class="modal-qty" id="mQtyDisp">${it.qty}</span>
+      <button class="qty-btn qty-btn-lg" onclick="chgQty(1)">+</button>
+    </div>
+  </div>`;
+
+  document.getElementById('mBody').innerHTML = html;
+  const ab = document.getElementById('addBtn');
+  if(ab) ab.textContent = '✓ Save Changes';
+  document.getElementById('modalOv').classList.remove('hidden');
+  document.getElementById('modal').onclick = e => e.stopPropagation();
+  document.getElementById('modalOv').onclick = e => { if(e.target===document.getElementById('modalOv')) closeModal(); };
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1703,7 +1782,7 @@ function orderHTML(){
     const yesRows = modRows.filter(r=>!r.isNo);
     const noRows  = modRows.filter(r=> r.isNo);
     return `
-    <div class="ord-item" id="oi_${item.id}">
+    <div class="ord-item" id="oi_${item.id}" onclick="editOrderItem('${item.id}')" style="cursor:pointer">
       <div class="oi-num">#${idx+1}</div>
       <div class="oi-head">
         <div>
@@ -1723,7 +1802,7 @@ function orderHTML(){
         </div>`:''}
       </div>`:''}
       ${item.notes?`<div class="oi-notes">${escapeHtml(item.notes)}</div>`:''}
-      <div class="oi-ctrl">
+      <div class="oi-ctrl" onclick="event.stopPropagation()">
         ${item.price?`<span class="oi-price">$${Number(item.price).toFixed(2)}</span>`:''}
         <button class="qty-btn" onclick="chgItemQty('${item.id}',-1)">−</button>
         <span class="qty-disp">${item.qty}</span>
